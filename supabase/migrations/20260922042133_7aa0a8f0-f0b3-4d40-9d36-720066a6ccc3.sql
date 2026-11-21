@@ -1,2 +1,0 @@
-REVOKE EXECUTE ON FUNCTION public.activate_open_sales_orders_snapshot(text, uuid, integer) FROM authenticated;
-GRANT EXECUTE ON FUNCTION public.activate_open_sales_orders_snapshot(text, uuid, integer) TO service_role;

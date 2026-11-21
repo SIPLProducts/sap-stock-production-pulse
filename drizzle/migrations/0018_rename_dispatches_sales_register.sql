@@ -1,1 +1,0 @@
-UPDATE public.tiles SET title = 'Sales Register', subtitle = 'Sales register reporting' WHERE screen_key = 'sd.dispatches';

@@ -1,1 +1,0 @@
-CREATE TABLE IF NOT EXISTS public.order_book (id uuid PRIMARY KEY DEFAULT gen_random_uuid());

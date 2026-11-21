@@ -1,1 +1,0 @@
-alter table public.sap_sync_runs add column if not exists request_snapshot jsonb;
