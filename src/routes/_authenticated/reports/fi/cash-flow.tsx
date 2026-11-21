@@ -7,9 +7,9 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 
 export const Route = createFileRoute("/_authenticated/reports/fi/cash-flow")({
   head: () => ({ meta: [
-    { title: "Cash Flow Dashboard — HBL MIS Portal" },
+    { title: "Cash Flow Dashboard — RESL MIS Portal" },
     { name: "description", content: "Cash Flow sample dashboard with credit and debit trends, plant analysis and a transaction ledger." },
-    { property: "og:title", content: "Cash Flow Dashboard — HBL MIS Portal" },
+    { property: "og:title", content: "Cash Flow Dashboard — RESL MIS Portal" },
     { property: "og:description", content: "Financial Accounting cash flow analysis and sample transaction reporting." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

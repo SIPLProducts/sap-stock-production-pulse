@@ -16,9 +16,9 @@ import { monthWiseStockQuery } from "@/lib/month-wise-stock-data";
 
 export const Route = createFileRoute("/_authenticated/reports/inv/month-wise-stock")({
   head: () => ({ meta: [
-    { title: "Month Wise Stock — HBL MIS Portal" },
+    { title: "Month Wise Stock — RESL MIS Portal" },
     { name: "description", content: "Inventory: month-wise closing stock value by type, plant and group." },
-    { property: "og:title", content: "Month Wise Stock — HBL MIS Portal" },
+    { property: "og:title", content: "Month Wise Stock — RESL MIS Portal" },
     { property: "og:description", content: "Inventory: month-wise closing stock value by type, plant and group." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -38,7 +38,7 @@ function Page() {
   const [busy, setBusy] = useState(false);
   const pdf = async () => {
     setBusy(true); await new Promise((r) => setTimeout(r, 300));
-    try { await exportDashboardPdf(ref.current, datedFileName("Month Wise Stock", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "HBL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
+    try { await exportDashboardPdf(ref.current, datedFileName("Month Wise Stock", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "RESL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
     catch (e) { toast.error(e instanceof Error ? e.message : "PDF failed"); } finally { setBusy(false); }
   };
   const ps = [...new Set((q.data ?? []).map((r) => r.period))].sort();

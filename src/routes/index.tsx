@@ -4,16 +4,16 @@ import { useEffect } from "react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "HBL MIS Portal — Sign In" },
+      { title: "RESL MIS Portal — Sign In" },
       {
         name: "description",
         content:
-          "Access HBL MIS sales, open orders and financial reporting.",
+          "Access RESL MIS sales, open orders and financial reporting.",
       },
-      { property: "og:title", content: "HBL MIS Portal — Sign In" },
+      { property: "og:title", content: "RESL MIS Portal — Sign In" },
       {
         property: "og:description",
-        content: "Access HBL MIS sales, open orders and financial reporting.",
+        content: "Access RESL MIS sales, open orders and financial reporting.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

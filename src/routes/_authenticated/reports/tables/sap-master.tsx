@@ -15,9 +15,9 @@ import { downloadMasterExcel, getMasterRows, parseWorkbook, sapMastersQuery, upl
 
 export const Route = createFileRoute("/_authenticated/reports/tables/sap-master")({
   head: () => ({ meta: [
-    { title: "SAP MASTER — HBL MIS Portal" },
+    { title: "SAP MASTER — RESL MIS Portal" },
     { name: "description", content: "Upload and view SAP master lists from Excel." },
-    { property: "og:title", content: "SAP MASTER — HBL MIS Portal" },
+    { property: "og:title", content: "SAP MASTER — RESL MIS Portal" },
     { property: "og:description", content: "Upload and view SAP master lists from Excel." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

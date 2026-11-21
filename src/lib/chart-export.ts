@@ -256,7 +256,7 @@ export async function exportDashboardPdf(
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(7.5);
     pdf.setTextColor(100, 116, 139);
-    pdf.text(options?.footerText ?? "HBL Confidential — Internal Use Only", pdf.internal.pageSize.getWidth() / 2, footerY, { align: "center" });
+    pdf.text(options?.footerText ?? "RESL Confidential — Internal Use Only", pdf.internal.pageSize.getWidth() / 2, footerY, { align: "center" });
     pdf.text(`Page ${pageIndex + 1} of ${pages.length}`, pdf.internal.pageSize.getWidth() - marginX, footerY, { align: "right" });
   });
 

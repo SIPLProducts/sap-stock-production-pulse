@@ -17,12 +17,12 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign in — HBL MIS Portal" },
+      { title: "Sign in — RESL MIS Portal" },
       {
         name: "description",
-        content: "Sign in to the HBL MIS Portal to view SAP KPI dashboards and analytics reports.",
+        content: "Sign in to the RESL MIS Portal to view SAP KPI dashboards and analytics reports.",
       },
-      { property: "og:title", content: "Sign in — HBL MIS Portal" },
+      { property: "og:title", content: "Sign in — RESL MIS Portal" },
       {
         property: "og:description",
         content: "Access role-based SAP MIS dashboards and analytics reports.",
@@ -135,7 +135,7 @@ function AuthPage() {
             <span className="h-1 w-12 rounded-full bg-gold" />
           </div>
           <h2 className="mt-5 max-w-md text-3xl leading-tight font-light">
-            HBL MIS Portal — SAP reports, KPIs and analytics in one launchpad.
+            RESL MIS Portal — SAP reports, KPIs and analytics in one launchpad.
           </h2>
           <p className="mt-4 max-w-md text-sm text-shell-muted">
             Role-based tiles, live KPIs and drill-down analytics across Sales, Finance, Quality,
@@ -143,7 +143,7 @@ function AuthPage() {
           </p>
         </div>
 
-        <p className="relative text-center text-xs text-shell-muted">HBL MIS Portal</p>
+        <p className="relative text-center text-xs text-shell-muted">RESL MIS Portal</p>
       </div>
 
       {/* Right sign-in panel */}

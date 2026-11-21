@@ -16,9 +16,9 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 
 export const Route = createFileRoute("/_authenticated/reports/inv/current-stock")({
   head: () => ({ meta: [
-    { title: "Current Stock — HBL MIS Portal" },
+    { title: "Current Stock — RESL MIS Portal" },
     { name: "description", content: "Inventory: Current stock on hand by plant and material." },
-    { property: "og:title", content: "Current Stock — HBL MIS Portal" },
+    { property: "og:title", content: "Current Stock — RESL MIS Portal" },
     { property: "og:description", content: "Inventory: Current stock on hand by plant and material." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -36,7 +36,7 @@ function Page() {
   const pdf = async () => {
     setBusy(true);
     await new Promise((r) => setTimeout(r, 300));
-    try { await exportDashboardPdf(ref.current, datedFileName("Current Stock", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "HBL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
+    try { await exportDashboardPdf(ref.current, datedFileName("Current Stock", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "RESL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
     catch (e) { toast.error(e instanceof Error ? e.message : "PDF failed"); }
     finally { setBusy(false); }
   };

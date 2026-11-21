@@ -17,9 +17,9 @@ import { openPoQuery } from "@/lib/open-po-data";
 
 export const Route = createFileRoute("/_authenticated/reports/mm/open-purchase-orders")({
   head: () => ({ meta: [
-    { title: "Open Purchase Orders — HBL MIS Portal" },
+    { title: "Open Purchase Orders — RESL MIS Portal" },
     { name: "description", content: "Open purchase orders, pending value and delivery aging (ZOPENPO)." },
-    { property: "og:title", content: "Open Purchase Orders — HBL MIS Portal" },
+    { property: "og:title", content: "Open Purchase Orders — RESL MIS Portal" },
     { property: "og:description", content: "Open purchase orders, pending value and delivery aging (ZOPENPO)." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -36,7 +36,7 @@ function Page() {
   const pdf = async () => {
     setBusy(true);
     await new Promise((r) => setTimeout(r, 300));
-    try { await exportDashboardPdf(ref.current, datedFileName("Open Purchase Orders", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "HBL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
+    try { await exportDashboardPdf(ref.current, datedFileName("Open Purchase Orders", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "RESL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
     catch (e) { toast.error(e instanceof Error ? e.message : "PDF failed"); }
     finally { setBusy(false); }
   };

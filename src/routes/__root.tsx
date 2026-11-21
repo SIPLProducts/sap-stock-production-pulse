@@ -83,10 +83,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Nexus — SAP Procurement Analytics" },
+      { title: "RESL MIS Portal" },
       {
         name: "description",
-        content: "Fiori-inspired analytics portal for SAP procurement data.",
+        content: "RESL MIS analytics portal for SAP sales, purchase, inventory and production reports.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -126,7 +126,7 @@ function RootShell({ children }: { children: ReactNode }) {
         >
           <div>
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary motion-reduce:animate-none" />
-            <p className="mt-4 text-sm text-muted-foreground">Opening HBL MIS Portal…</p>
+            <p className="mt-4 text-sm text-muted-foreground">Opening RESL MIS Portal…</p>
           </div>
         </div>
         <div id="app-content">{children}</div>

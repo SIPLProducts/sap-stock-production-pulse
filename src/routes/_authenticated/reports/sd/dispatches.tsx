@@ -17,9 +17,9 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 
 export const Route = createFileRoute("/_authenticated/reports/sd/dispatches")({
   head: () => ({ meta: [
-    { title: "Sales Register — HBL MIS Portal" },
+    { title: "Sales Register — RESL MIS Portal" },
     { name: "description", content: "Sales and Distribution sales register reporting." },
-    { property: "og:title", content: "Sales Register — HBL MIS Portal" },
+    { property: "og:title", content: "Sales Register — RESL MIS Portal" },
     { property: "og:description", content: "Sales and Distribution sales register reporting." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

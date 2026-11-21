@@ -17,9 +17,9 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 
 export const Route = createFileRoute("/_authenticated/reports/pp/daily-production-report")({
   head: () => ({ meta: [
-    { title: "Daily Production Report — HBL MIS Portal" },
+    { title: "Daily Production Report — RESL MIS Portal" },
     { name: "description", content: "Production Planning: daily production quantity, value and scrap by plant, work center and material." },
-    { property: "og:title", content: "Daily Production Report — HBL MIS Portal" },
+    { property: "og:title", content: "Daily Production Report — RESL MIS Portal" },
     { property: "og:description", content: "Production Planning: daily production quantity, value and scrap by plant, work center and material." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -37,7 +37,7 @@ function Page() {
   const pdf = async () => {
     setBusy(true);
     await new Promise((r) => setTimeout(r, 300));
-    try { await exportDashboardPdf(ref.current, datedFileName("Daily Production Report", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "HBL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
+    try { await exportDashboardPdf(ref.current, datedFileName("Daily Production Report", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "RESL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
     catch (e) { toast.error(e instanceof Error ? e.message : "PDF failed"); }
     finally { setBusy(false); }
   };

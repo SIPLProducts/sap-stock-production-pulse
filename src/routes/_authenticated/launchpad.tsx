@@ -19,9 +19,9 @@ const MODULE_ACCENT: Record<string, number> = { "sales-distribution": 1, purchas
 
 export const Route = createFileRoute("/_authenticated/launchpad")({
   head: () => ({ meta: [
-    { title: "HBL MIS Portal — Analytics Launchpad" },
+    { title: "RESL MIS Portal — Analytics Launchpad" },
     { name: "description", content: "Role-based SAP enterprise analytics, operational KPIs, and reports." },
-    { property: "og:title", content: "HBL MIS Portal — Analytics Launchpad" },
+    { property: "og:title", content: "RESL MIS Portal — Analytics Launchpad" },
     { property: "og:description", content: "Enterprise SAP analytics and reporting launchpad." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

@@ -7,9 +7,9 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 
 export const Route = createFileRoute("/_authenticated/reports/inv/inventory-aging")({
   head: () => ({ meta: [
-    { title: "Inventory Aging — HBL MIS Portal" },
+    { title: "Inventory Aging — RESL MIS Portal" },
     { name: "description", content: "Inventory: Stock aging by age bucket." },
-    { property: "og:title", content: "Inventory Aging — HBL MIS Portal" },
+    { property: "og:title", content: "Inventory Aging — RESL MIS Portal" },
     { property: "og:description", content: "Inventory: Stock aging by age bucket." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

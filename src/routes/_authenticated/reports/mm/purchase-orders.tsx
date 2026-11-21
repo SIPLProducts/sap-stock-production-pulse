@@ -17,9 +17,9 @@ import { purchaseOrdersQuery } from "@/lib/purchase-orders-data";
 
 export const Route = createFileRoute("/_authenticated/reports/mm/purchase-orders")({
   head: () => ({ meta: [
-    { title: "Purchase Orders List — HBL MIS Portal" },
+    { title: "Purchase Orders List — RESL MIS Portal" },
     { name: "description", content: "Purchase orders by type, vendor, plant and delivery status (ZME2N)." },
-    { property: "og:title", content: "Purchase Orders List — HBL MIS Portal" },
+    { property: "og:title", content: "Purchase Orders List — RESL MIS Portal" },
     { property: "og:description", content: "Purchase orders by type, vendor, plant and delivery status (ZME2N)." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
@@ -36,7 +36,7 @@ function Page() {
   const pdf = async () => {
     setBusy(true);
     await new Promise((r) => setTimeout(r, 300));
-    try { await exportDashboardPdf(ref.current, datedFileName("Purchase Orders List", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "HBL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
+    try { await exportDashboardPdf(ref.current, datedFileName("Purchase Orders List", "pdf"), "[data-pdf-exclude]", { headerSelector: "[data-pdf-header]", footerText: "RESL Confidential — Internal Use Only", preserveComputedChartColors: true }); }
     catch (e) { toast.error(e instanceof Error ? e.message : "PDF failed"); }
     finally { setBusy(false); }
   };

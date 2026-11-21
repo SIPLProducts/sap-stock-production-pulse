@@ -2340,7 +2340,7 @@ export function SdLiveDashboard() {
         headerSelector: "[data-pdf-header]",
         blockSelector: "[data-pdf-page-block]",
         sectionBreakSelector: "[data-pdf-section-break]",
-        footerText: "HBL Confidential — Internal Use Only",
+        footerText: "RESL Confidential — Internal Use Only",
       });
       toast.success("Dashboard PDF downloaded");
     } catch (error) {

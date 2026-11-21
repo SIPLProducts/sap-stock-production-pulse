@@ -8,9 +8,9 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 
 export const Route = createFileRoute("/_authenticated/reports/sd/sit")({
   head: () => ({ meta: [
-    { title: "Sales In Transit (SIT) — HBL MIS Portal" },
+    { title: "Sales In Transit (SIT) — RESL MIS Portal" },
     { name: "description", content: "Sales in transit values by zone, plant and group from SAP." },
-    { property: "og:title", content: "Sales In Transit (SIT) — HBL MIS Portal" },
+    { property: "og:title", content: "Sales In Transit (SIT) — RESL MIS Portal" },
     { property: "og:description", content: "Sales in transit values by zone, plant and group from SAP." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },

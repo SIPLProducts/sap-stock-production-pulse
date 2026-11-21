@@ -8,9 +8,9 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 
 export const Route = createFileRoute("/_authenticated/reports/sd/order-book")({
   head: () => ({ meta: [
-    { title: "Order Book — HBL MIS Portal" },
+    { title: "Order Book — RESL MIS Portal" },
     { name: "description", content: "Order book values, customers, products and plants from SAP." },
-    { property: "og:title", content: "Order Book — HBL MIS Portal" },
+    { property: "og:title", content: "Order Book — RESL MIS Portal" },
     { property: "og:description", content: "Order book values, customers, products and plants from SAP." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
