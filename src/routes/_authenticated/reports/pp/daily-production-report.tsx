@@ -3,7 +3,7 @@ import { dailyProductionQuery, dprLastSync } from "@/lib/daily-production-data";
 import { lastSyncedLabel } from "@/lib/report-sync-time";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import hblLogo from "@/assets/hbl-logo.png";
+import reslLogo from "@/assets/resl-logo.png.asset.json";
 import { useRef, useState } from "react";
 import { FileDown, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -52,7 +52,7 @@ function Page() {
   </>;
   return <ReportShell title="Daily Production Report" unitLabel="Val in Cr" compact actions={allowed ? actions : undefined}>
     {!isLoading && !allowed ? <AccessDenied area="Daily Production Report" /> : stock.error ? <p className="text-sm text-destructive">{(stock.error as Error).message}</p> : !stock.data ? <p className="text-sm text-muted-foreground">Loading production…</p> : <div ref={ref}>
-      {busy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3"><div className="min-w-0"><img src={hblLogo} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div><div className="text-right"><h1 className="text-lg font-bold text-card-foreground">Daily Production Report</h1><p className="text-[11px] font-medium text-muted-foreground">Val in Cr</p></div></div> : null}
+      {busy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3"><div className="min-w-0"><img src={reslLogo.url} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div><div className="text-right"><h1 className="text-lg font-bold text-card-foreground">Daily Production Report</h1><p className="text-[11px] font-medium text-muted-foreground">Val in Cr</p></div></div> : null}
       <DailyProductionDashboard rows={stock.data} /></div>}
   </ReportShell>;
 }

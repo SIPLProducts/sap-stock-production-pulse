@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
 import { adminNavForScreens } from "@/lib/nav";
 import { supabase } from "@/integrations/supabase/client";
-import hblLogo from "@/assets/hbl-logo.png";
+import reslLogo from "@/assets/resl-logo.png.asset.json";
 
 
 import {
@@ -70,7 +70,7 @@ export function ShellBar({
     <header className={`sticky top-0 z-40 flex items-center gap-3 bg-shell px-4 text-shell-foreground ${launchpad ? "h-10" : "h-14"}`}>
       <Link to="/launchpad" className="flex min-w-0 items-center gap-2">
         <span className={`grid shrink-0 place-items-center overflow-hidden bg-shell-foreground/14 ${launchpad ? "h-7 rounded-lg px-1.5" : "h-8 rounded-lg px-2"}`}>
-          <img src={hblLogo} alt="RESL" className={`${launchpad ? "h-4" : "h-5"} w-auto object-contain brightness-0 invert`} />
+          <img src={reslLogo.url} alt="RESL" className={`${launchpad ? "h-4" : "h-5"} w-auto object-contain`} />
         </span>
         <span className="flex min-w-0 items-center gap-2">
           <span className={`truncate font-semibold tracking-wide ${launchpad ? "text-xs" : "text-sm"}`}>MIS PORTAL</span>

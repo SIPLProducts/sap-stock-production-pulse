@@ -54,7 +54,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { toast } from "sonner";
-import hblLogo from "@/assets/hbl-logo.png";
+import reslLogo from "@/assets/resl-logo.png.asset.json";
 import { exportDashboardPdf } from "@/lib/chart-export";
 import { downloadOpenSalesOrdersExcel } from "@/lib/open-sales-orders-export";
 import { FilterField, FilterMultiSelect } from "@/components/filter-multi-select";
@@ -373,7 +373,7 @@ export function OpenSalesOrdersDashboard({ variant = "open-orders" }: { variant?
   return (
     <div ref={dashboardRef} className={`mx-auto min-w-0 max-w-[1600px] space-y-4 pb-4 ${pdfBusy ? "orders-pdf-export" : "orders-compact"}`}>
       {pdfBusy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3">
-        <div className="min-w-0"><img src={hblLogo} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div>
+        <div className="min-w-0"><img src={reslLogo.url} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div>
       </div> : null}
       {!pdfBusy ? <header data-pdf-exclude className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-1">
         <div className="min-w-0">

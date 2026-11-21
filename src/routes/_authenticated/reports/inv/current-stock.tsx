@@ -2,7 +2,7 @@ import { CurrentStockDashboard } from "@/components/current-stock-dashboard";
 import { currentStockQuery } from "@/lib/current-stock-data";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import hblLogo from "@/assets/hbl-logo.png";
+import reslLogo from "@/assets/resl-logo.png.asset.json";
 import { useRef, useState } from "react";
 import { FileDown, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -47,7 +47,7 @@ function Page() {
   </>;
   return <ReportShell title="Current Stock" unitLabel="Val in Cr" compact actions={allowed ? actions : undefined}>
     {!isLoading && !allowed ? <AccessDenied area="Current Stock" /> : stock.error ? <p className="text-sm text-destructive">{(stock.error as Error).message}</p> : !stock.data ? <p className="text-sm text-muted-foreground">Loading stock…</p> : <div ref={ref}>
-      {busy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3"><div className="min-w-0"><img src={hblLogo} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div><div className="text-right"><h1 className="text-lg font-bold text-card-foreground">Current Stock</h1><p className="text-[11px] font-medium text-muted-foreground">Val in Cr</p></div></div> : null}
+      {busy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3"><div className="min-w-0"><img src={reslLogo.url} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div><div className="text-right"><h1 className="text-lg font-bold text-card-foreground">Current Stock</h1><p className="text-[11px] font-medium text-muted-foreground">Val in Cr</p></div></div> : null}
       <CurrentStockDashboard rows={stock.data.rows} sample={stock.data.sample} /></div>}
   </ReportShell>;
 }

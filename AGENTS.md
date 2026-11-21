@@ -50,3 +50,5 @@
 - Month Wise Stock reads database-summed rows via the month_wise_stock_summary RPC through one stable query (explicit Refresh), loading full public.month_wise_upload rows per month only for the detailed table/Excel, mapping ValCl→Valuation Short Name (tiles/types) and Profit Centre→ZPC GROUP groups in pure month-wise-stock-map.ts; tiles/cards sum every month in the selected range (All = all months), per user request.
 - Month Wise Stock totals come from SECURITY DEFINER RPCs over generated typed columns (val_class, plant, profit_centre, material, cb_qty, cb_val) that check access once per call, because per-row JSON parsing and RLS calls timed out on large uploads.
 - Daily Production Report (ZDPR) rows upsert into public.daily_production on MBLNR + MJAHR + ZEILE; after a successful non-empty reply, lines inside the returned posting-date span not refreshed are deleted; FROMDT/TODT (YYYY-MM-DD) follow the endpoint's date window, because SAP returns goods movements by posting date.
+
+- Import the shared logo CDN pointer in portal and PDF headers, preserving its original colors; one asset keeps branding consistent across screens.

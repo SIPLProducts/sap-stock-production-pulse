@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import hblLogo from "@/assets/hbl-logo.png";
+import reslLogo from "@/assets/resl-logo.png.asset.json";
 
 const REMEMBER_KEY = "hbl-remembered-identifier";
 
@@ -114,7 +114,7 @@ function AuthPage() {
         {/* centered RESL logo watermark behind the description */}
         <img
           aria-hidden
-          src={hblLogo}
+          src={reslLogo.url}
           alt=""
           className="pointer-events-none absolute left-1/2 top-1/2 w-[30rem] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-[0.07] invert brightness-0 select-none"
         />
@@ -149,7 +149,7 @@ function AuthPage() {
       {/* Right sign-in panel */}
       <div className="relative flex items-center justify-center bg-surface p-6">
         <img
-          src={hblLogo}
+          src={reslLogo.url}
           alt="RESL logo"
           className="absolute right-6 top-6 h-9 w-auto"
         />

@@ -1,4 +1,4 @@
-import hblLogo from "@/assets/hbl-logo.png";
+import reslLogo from "@/assets/resl-logo.png.asset.json";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -48,7 +48,7 @@ function Page() {
     <Button type="button" variant="export" size="sm" className="h-7 text-xs" onClick={pdf} disabled={busy}><FileDown className="size-3.5" />PDF</Button>
   </>;
   return <ReportShell title="Month Wise Stock" compact actions={allowed ? actions : undefined}>
-    {!isLoading && !allowed ? <AccessDenied area="Month Wise Stock" /> : <div ref={ref}>{busy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3"><div><img src={hblLogo} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div><h1 className="text-lg font-bold text-card-foreground">Month Wise Stock</h1></div> : null}
+    {!isLoading && !allowed ? <AccessDenied area="Month Wise Stock" /> : <div ref={ref}>{busy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3"><div><img src={reslLogo.url} alt="RESL" className="h-10 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div><h1 className="text-lg font-bold text-card-foreground">Month Wise Stock</h1></div> : null}
       {q.isError ? <p className="p-4 text-sm text-destructive">{(q.error as Error).message}</p> : q.isLoading ? <GlassLoadingPage /> : <MonthWiseStockDashboard rows={q.data ?? []} />}</div>}
   </ReportShell>;
 }
