@@ -211,3 +211,4 @@
 - [x] Sales Register: visible chart colours, plant columns, rank lists, launchpad doc-type card, Distribution Channel column, coloured table, full Excel
 - [x] Month Wise Stock dashboard from Month Wise Upload
 - [x] Rename the portal branding from HBL to RESL (page titles, login screen, launchpad, PDF footer)
+- [ ] Swap in the RESL logo file once the user uploads it (header, login screen, PDF headers)

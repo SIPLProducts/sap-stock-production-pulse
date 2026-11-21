@@ -2450,8 +2450,8 @@ export function SdLiveDashboard() {
       {pdfBusy ? (
         <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3">
           <div className="min-w-0">
-            <img src={hblLogo} alt="HBL" className="h-10 w-auto object-contain" />
-            <p className="mt-1 text-xs font-semibold text-card-foreground">HBL Engineering Limited</p>
+            <img src={hblLogo} alt="RESL" className="h-10 w-auto object-contain" />
+            <p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p>
           </div>
           <div className="shrink-0 rounded-full border border-primary/25 bg-primary/5 px-4 py-2 text-right text-xs font-semibold text-foreground">
             {pdfFiscalYearLabel}

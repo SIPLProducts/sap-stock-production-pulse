@@ -5,7 +5,7 @@ import { channelDescription } from "@/lib/open-sales-orders-filters";
 export async function downloadOpenSalesOrdersExcel(rows: OpenSalesOrder[], fileName = "open-sales-orders.xlsx", dateHeader = "Sales Order Creation Date", valueHeader = "Open Value (₹ Cr)", documentTypeLabel: (row: OpenSalesOrder) => string = (row) => row.documentType, ahInLakhs = false) {
   const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "HBL Engineering Limited";
+  workbook.creator = "RESL";
   const sheet = workbook.addWorksheet("Open Sales Orders", {
     views: [{ state: "frozen", ySplit: 1 }],
   });

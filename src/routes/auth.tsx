@@ -111,7 +111,7 @@ function AuthPage() {
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Left branding panel */}
       <div className="relative hidden flex-col overflow-hidden bg-shell p-10 text-shell-foreground lg:flex">
-        {/* centered HBL logo watermark behind the description */}
+        {/* centered RESL logo watermark behind the description */}
         <img
           aria-hidden
           src={hblLogo}
@@ -150,7 +150,7 @@ function AuthPage() {
       <div className="relative flex items-center justify-center bg-surface p-6">
         <img
           src={hblLogo}
-          alt="HBL logo"
+          alt="RESL logo"
           className="absolute right-6 top-6 h-9 w-auto"
         />
         <div className="w-full max-w-md">
