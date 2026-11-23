@@ -1,9 +1,9 @@
 import reslLogo from "@/assets/resl-logo.png.asset.json";
 
 /** Full-screen RESL brand loader: rings draw, then r and e reveal, hold, fade, loop. */
-export function BrandLoader({ label = "Loading…" }: { label?: string }) {
+export function BrandLoader({ label = "Loading…", inline = false }: { label?: string; inline?: boolean }) {
   return (
-    <div className="brand-loader" role="status" aria-label={label}>
+    <div className={inline ? "brand-loader brand-loader--inline" : "brand-loader"} role="status" aria-label={label}>
       <div className="brand-loader__stage">
         <div className="brand-loader__mark">
           <svg viewBox="0 0 1150 624" className="brand-loader__rings" aria-hidden="true">

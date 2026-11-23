@@ -60,17 +60,32 @@ export function vaLastSync(rows: VaRow[]) { let m = ""; for (const r of rows) if
 
 const COLS = "id,lifnr,name1,j_1ipanno,mindk_desc,msme_no,belnr,wrbtr,days,blart,bldat,budat,net_due_date,bukrs,prctr,prctr_text,hkont,txt50,segment,segment_text,sgtxt,t_vbeln,ebeln,key_date,d10,d20,d30,d40,d50,d60,d70,d80,d90,synced_at";
 const PAGE = 1000;
+/** Fetches id ranges in parallel (6 at a time) instead of 50+ sequential pages. */
 export async function getVendorAgeing(): Promise<VaRow[]> {
-  const out: Rec[] = [];
-  let after = 0;
-  for (;;) {
-    const { data, error } = await supabase.from("vendor_ageing").select(COLS).order("id").gt("id", after).limit(PAGE);
+  const edge = async (asc: boolean) => {
+    const { data, error } = await supabase.from("vendor_ageing").select("id").order("id", { ascending: asc }).limit(1);
     if (error) throw new Error(`Unable to load Vendor Ageing: ${error.message}`);
-    const list = (data ?? []) as unknown as Rec[];
-    out.push(...list);
-    if (list.length < PAGE) break;
-    after = Number(list[list.length - 1]!["id"]);
-  }
+    return Number((data?.[0] as { id?: number } | undefined)?.id ?? 0);
+  };
+  const [lo, hi] = await Promise.all([edge(true), edge(false)]);
+  if (!lo && !hi) return [];
+  const starts: number[] = [];
+  for (let s = lo; s <= hi; s += PAGE) starts.push(s);
+  const out: Rec[] = [];
+  const fetchRange = async (from: number): Promise<void> => {
+    let after = from - 1; const end = from + PAGE - 1;
+    for (;;) {
+      const { data, error } = await supabase.from("vendor_ageing").select(COLS).gt("id", after).lte("id", end).order("id").limit(PAGE);
+      if (error) throw new Error(`Unable to load Vendor Ageing: ${error.message}`);
+      const list = (data ?? []) as unknown as Rec[];
+      out.push(...list);
+      if (list.length < PAGE) return;
+      after = Number(list[list.length - 1]!["id"]);
+    }
+  };
+  let i = 0;
+  await Promise.all(Array.from({ length: 6 }, async () => { while (i < starts.length) await fetchRange(starts[i++]!); }));
+  out.sort((x, y) => Number(x["id"]) - Number(y["id"]));
   return out.map(toVaRow);
 }
 export const vendorAgeingQuery = queryOptions({ queryKey: ["vendor-ageing", "v1"], queryFn: getVendorAgeing, staleTime: Infinity, refetchOnWindowFocus: false });

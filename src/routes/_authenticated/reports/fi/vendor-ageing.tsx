@@ -1,3 +1,4 @@
+import { BrandLoader } from "@/components/brand-loader";
 import { VendorAgeingDashboard } from "@/components/vendor-ageing-dashboard";
 import { vendorAgeingQuery, vaLastSync } from "@/lib/vendor-ageing-data";
 import { lastSyncedLabel } from "@/lib/report-sync-time";
@@ -51,7 +52,7 @@ function Page() {
     <Button type="button" variant="export" size="sm" className="h-7 text-xs" onClick={pdf} disabled={busy || !stock.data}><FileDown className="size-3.5" />PDF</Button>
   </>;
   return <ReportShell title="Vendor Ageing" unitLabel="Val in Cr" compact actions={allowed ? actions : undefined}>
-    {!isLoading && !allowed ? <AccessDenied area="Vendor Ageing" /> : stock.error ? <p className="text-sm text-destructive">{(stock.error as Error).message}</p> : !stock.data ? <p className="text-sm text-muted-foreground">Loading vendor ageing…</p> : <div ref={ref}>
+    {!isLoading && !allowed ? <AccessDenied area="Vendor Ageing" /> : stock.error ? <p className="text-sm text-destructive">{(stock.error as Error).message}</p> : !stock.data ? <BrandLoader inline label="Loading vendor ageing…" /> : <div ref={ref}>
       {busy ? <div data-pdf-header className="flex items-center justify-between gap-6 border-b border-border bg-card px-4 py-3"><div className="min-w-0"><img src={reslLogo.url} alt="RESL" className="h-12 w-auto object-contain" /><p className="mt-1 text-xs font-semibold text-card-foreground">RESL</p></div><div className="text-right"><h1 className="text-lg font-bold text-card-foreground">Vendor Ageing</h1><p className="text-[11px] font-medium text-muted-foreground">Val in Cr</p></div></div> : null}
       <VendorAgeingDashboard rows={stock.data} /></div>}
   </ReportShell>;

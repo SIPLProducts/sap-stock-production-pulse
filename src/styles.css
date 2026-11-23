@@ -935,3 +935,5 @@
   .brand-loader__mark { animation: bl-pulse 2s ease-in-out infinite; }
   @keyframes bl-pulse { 50% { opacity: .6; } }
 }
+
+.brand-loader.brand-loader--inline { position: relative; inset: auto; min-height: 60vh; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; z-index: auto; }
