@@ -36,3 +36,4 @@
 - Import the shared logo CDN pointer in portal and PDF headers, preserving its original colors; one asset keeps branding consistent across screens.
 - Vendor Ageing (ZFI_VAG) inserts full snapshots into public.vendor_ageing and deletes older synced_at rows only after a successful non-empty insert, because SAP returns all open items for the key date with no unique line key; S_KDATE defaults to today and exactly one of R1/R2/R3 (Due/Posting/GRN basis) is X.
 - Unmapped SAP endpoints fail with "No storage is set up" instead of defaulting to a report table, because the retired sales/purchase/stock tables were removed.
+- ZFBL1N (zfbl1n_items) screens and launchpad read aggregates through zfbl1n_summary/zfbl1n_page RPCs (invoker, RLS applies) instead of downloading line items, so 30k+ rows load instantly; sync replaces the snapshot like Vendor Ageing.

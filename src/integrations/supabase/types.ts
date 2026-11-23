@@ -3555,6 +3555,129 @@ export type Database = {
         }
         Relationships: []
       }
+      zfbl1n_items: {
+        Row: {
+          augbl: string | null
+          augdt: string | null
+          belnr: string | null
+          blart: string | null
+          bldat: string | null
+          bschl: string | null
+          bstat: string | null
+          budat: string | null
+          bukrs: string | null
+          buzei: number | null
+          dmshb: number
+          ebeln: string | null
+          faedt: string | null
+          gjahr: number | null
+          gsber: string | null
+          hkont: string | null
+          hwaer: string | null
+          id: number
+          jamon: string | null
+          koart: string | null
+          kostl: string | null
+          ktext: string | null
+          lifnr: string | null
+          monat: number | null
+          name1: string | null
+          prctr: string | null
+          sgtxt: string | null
+          shkzg: string | null
+          source_endpoint: string | null
+          synced_at: string
+          txt50: string | null
+          umskz: string | null
+          verzn: number | null
+          waers: string | null
+          werks: string | null
+          wrshb: number | null
+          xblnr: string | null
+          zuonr: string | null
+        }
+        Insert: {
+          augbl?: string | null
+          augdt?: string | null
+          belnr?: string | null
+          blart?: string | null
+          bldat?: string | null
+          bschl?: string | null
+          bstat?: string | null
+          budat?: string | null
+          bukrs?: string | null
+          buzei?: number | null
+          dmshb?: number
+          ebeln?: string | null
+          faedt?: string | null
+          gjahr?: number | null
+          gsber?: string | null
+          hkont?: string | null
+          hwaer?: string | null
+          id?: number
+          jamon?: string | null
+          koart?: string | null
+          kostl?: string | null
+          ktext?: string | null
+          lifnr?: string | null
+          monat?: number | null
+          name1?: string | null
+          prctr?: string | null
+          sgtxt?: string | null
+          shkzg?: string | null
+          source_endpoint?: string | null
+          synced_at?: string
+          txt50?: string | null
+          umskz?: string | null
+          verzn?: number | null
+          waers?: string | null
+          werks?: string | null
+          wrshb?: number | null
+          xblnr?: string | null
+          zuonr?: string | null
+        }
+        Update: {
+          augbl?: string | null
+          augdt?: string | null
+          belnr?: string | null
+          blart?: string | null
+          bldat?: string | null
+          bschl?: string | null
+          bstat?: string | null
+          budat?: string | null
+          bukrs?: string | null
+          buzei?: number | null
+          dmshb?: number
+          ebeln?: string | null
+          faedt?: string | null
+          gjahr?: number | null
+          gsber?: string | null
+          hkont?: string | null
+          hwaer?: string | null
+          id?: number
+          jamon?: string | null
+          koart?: string | null
+          kostl?: string | null
+          ktext?: string | null
+          lifnr?: string | null
+          monat?: number | null
+          name1?: string | null
+          prctr?: string | null
+          sgtxt?: string | null
+          shkzg?: string | null
+          source_endpoint?: string | null
+          synced_at?: string
+          txt50?: string | null
+          umskz?: string | null
+          verzn?: number | null
+          waers?: string | null
+          werks?: string | null
+          wrshb?: number | null
+          xblnr?: string | null
+          zuonr?: string | null
+        }
+        Relationships: []
+      }
       zfisales_detail: {
         Row: {
           ah: number
@@ -4748,6 +4871,61 @@ export type Database = {
         Args: { _plant: string; _profit_center: string }
         Returns: boolean
       }
+      zfbl1n_filtered: {
+        Args: { _f: Json }
+        Returns: {
+          augbl: string | null
+          augdt: string | null
+          belnr: string | null
+          blart: string | null
+          bldat: string | null
+          bschl: string | null
+          bstat: string | null
+          budat: string | null
+          bukrs: string | null
+          buzei: number | null
+          dmshb: number
+          ebeln: string | null
+          faedt: string | null
+          gjahr: number | null
+          gsber: string | null
+          hkont: string | null
+          hwaer: string | null
+          id: number
+          jamon: string | null
+          koart: string | null
+          kostl: string | null
+          ktext: string | null
+          lifnr: string | null
+          monat: number | null
+          name1: string | null
+          prctr: string | null
+          sgtxt: string | null
+          shkzg: string | null
+          source_endpoint: string | null
+          synced_at: string
+          txt50: string | null
+          umskz: string | null
+          verzn: number | null
+          waers: string | null
+          werks: string | null
+          wrshb: number | null
+          xblnr: string | null
+          zuonr: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "zfbl1n_items"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      zfbl1n_options: { Args: never; Returns: Json }
+      zfbl1n_page: {
+        Args: { _f?: Json; _limit?: number; _offset?: number; _search?: string }
+        Returns: Json
+      }
+      zfbl1n_summary: { Args: { _f?: Json }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "buyer" | "approver" | "viewer"

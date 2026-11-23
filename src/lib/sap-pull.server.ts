@@ -6,6 +6,7 @@
 import { isUserDropdownEndpoint, mapUserDropdownPayload } from "./user-dropdown-map";
 import { isCurrentStockEndpoint, mapCurrentStockPayload } from "./current-stock-map";
 import { isVendorAgeingEndpoint, mapVendorAgeingPayload } from "./vendor-ageing-map";
+import { isZfbl1nEndpoint, mapZfbl1nPayload } from "./zfbl1n-map";
 import {
   extractEmbeddedBody,
   keyValueObject,
@@ -150,6 +151,47 @@ export async function storeVendorAgeingPayload(
   } catch (err) {
     if (syncedAt) await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);
     await finish({ status: "error", error_message: err instanceof Error ? err.message : "Vendor Ageing write failed" });
+    throw err;
+  }
+}
+
+export async function storeZfbl1nPayload(
+  payload: unknown,
+  endpointName: string,
+  requestSnapshot?: unknown,
+  metrics: RunMetrics = {},
+): Promise<SyncCounts> {
+  const db = await admin();
+  const { received, rows, invalid, duplicates } = mapZfbl1nPayload(payload, endpointName);
+  const { data: run } = await db.from("sap_sync_runs").insert({
+    endpoint: endpointName, status: "running", started_at: new Date().toISOString(), records_received: received,
+    records_invalid: invalid, response_bytes: metrics.responseBytes ?? 0, duration_ms: metrics.durationMs ?? 0,
+    ...(metrics.httpStatus === undefined ? {} : { http_status: metrics.httpStatus }),
+    ...(requestSnapshot === undefined ? {} : { request_snapshot: requestSnapshot as never }),
+  }).select("id").single();
+  const finish = async (patch: Record<string, unknown>) => {
+    if (run?.id) await db.from("sap_sync_runs").update({ finished_at: new Date().toISOString(), ...patch }).eq("id", run.id);
+    await pruneRuns(endpointName);
+  };
+  const base = { received, replaced: 0, skipped: 0, invalid, duplicates, syncScopeKey: "zfbl1n_items", snapshotId: "", postingFrom: null, postingTo: null };
+  const syncedAt = rows[0]?.["synced_at"] as string | undefined;
+  try {
+    for (let i = 0; i < rows.length; i += BATCH) {
+      const { error } = await db.from("zfbl1n_items" as never).insert(rows.slice(i, i + BATCH) as never);
+      if (error) throw error;
+    }
+    // Full snapshot: once the new rows are all in, older snapshots are removed. Empty replies keep existing data.
+    let removed = 0;
+    if (rows.length && syncedAt) {
+      const { count, error } = await db.from("zfbl1n_items" as never).delete({ count: "exact" }).lt("synced_at", syncedAt);
+      if (error) throw error;
+      removed = count ?? 0;
+    }
+    await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
+    return { ...base, replaced: removed, stored: rows.length };
+  } catch (err) {
+    if (syncedAt) await db.from("zfbl1n_items" as never).delete().eq("synced_at", syncedAt);
+    await finish({ status: "error", error_message: err instanceof Error ? err.message : "ZFBL1N write failed" });
     throw err;
   }
 }
@@ -355,7 +397,7 @@ export async function pullSapEndpoint(
 
 
 
-  const counts = await (isVendorAgeingEndpoint(endpointName) ? storeVendorAgeingPayload : isCurrentStockEndpoint(endpointName) ? storeCurrentStockPayload : isUserDropdownEndpoint(endpointName) ? storeUserDropdownPayload : storeUnmappedPayload)(payload, endpointName, outbound, {
+  const counts = await (isZfbl1nEndpoint(endpointName) ? storeZfbl1nPayload : isVendorAgeingEndpoint(endpointName) ? storeVendorAgeingPayload : isCurrentStockEndpoint(endpointName) ? storeCurrentStockPayload : isUserDropdownEndpoint(endpointName) ? storeUserDropdownPayload : storeUnmappedPayload)(payload, endpointName, outbound, {
     durationMs,
     responseBytes: bytes,
     httpStatus: response.status,

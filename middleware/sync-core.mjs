@@ -108,6 +108,73 @@ function sapIsoDate(v) {
   return m ? `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}` : null;
 }
 
+// ../src/lib/zfbl1n-map.ts
+var TEXT2 = ["bukrs", "belnr", "blart", "bschl", "bstat", "augbl", "lifnr", "prctr", "hkont", "txt50", "gsber", "umskz", "koart", "shkzg", "waers", "hwaer", "xblnr", "zuonr", "sgtxt", "ebeln", "kostl", "werks", "ktext", "jamon"];
+var DATES2 = ["budat", "bldat", "faedt", "augdt"];
+var INTS = ["gjahr", "buzei", "verzn", "monat"];
+function isZfbl1nEndpoint(name) {
+  return /zfbl1n|fbl1n|vendorlineitem/.test((name ?? "").replace(/[^a-z0-9]/gi, "").toLowerCase());
+}
+var text2 = (v) => {
+  if (v == null || typeof v === "object") return null;
+  const s = String(v).trim();
+  return s || null;
+};
+var num = (v) => {
+  if (v == null || v === "") return null;
+  const s = String(v).trim().replace(/,/g, "");
+  const neg = s.endsWith("-");
+  const n = Number(neg ? s.slice(0, -1) : s);
+  return Number.isFinite(n) ? neg ? -n : n : null;
+};
+function pick(raw, k) {
+  return raw[k] ?? raw[k.toUpperCase()];
+}
+function mapZfbl1nPayload(payload, endpointName, now = /* @__PURE__ */ new Date()) {
+  const obj = payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {};
+  const src = Array.isArray(payload) ? payload : ["items", "ITEMS", "DATA", "data"].map((k) => obj[k]).find(Array.isArray) ?? [];
+  const syncedAt = now.toISOString();
+  const rows = [];
+  const seen = /* @__PURE__ */ new Set();
+  let invalid = 0, duplicates = 0;
+  for (const raw of src) {
+    if (!raw || typeof raw !== "object" || !text2(pick(raw, "belnr"))) {
+      invalid++;
+      continue;
+    }
+    const row = { source_endpoint: endpointName, synced_at: syncedAt };
+    for (const k of TEXT2) row[k] = text2(pick(raw, k));
+    for (const k of DATES2) row[k] = sapIsoDate(pick(raw, k));
+    for (const k of INTS) {
+      const n = num(pick(raw, k));
+      row[k] = n == null ? null : Math.trunc(n);
+    }
+    row["lifnr"] = row["lifnr"] ?? text2(pick(raw, "konto")) ?? text2(pick(raw, "lifnr1"));
+    row["name1"] = text2(pick(raw, "namek")) ?? text2(pick(raw, "zzvenName")) ?? text2(pick(raw, "name1"));
+    row["dmshb"] = num(pick(raw, "dmshb")) ?? 0;
+    row["wrshb"] = num(pick(raw, "wrshb"));
+    const key = `${row["bukrs"]}|${row["gjahr"]}|${row["belnr"]}|${row["buzei"]}`;
+    if (seen.has(key)) {
+      duplicates++;
+      continue;
+    }
+    seen.add(key);
+    rows.push(row);
+  }
+  return { received: src.length, rows, invalid, duplicates };
+}
+function withZfbl1nPayload(raw, now = /* @__PURE__ */ new Date(), scheduled = false) {
+  if (!raw || !raw.trim()) return raw ?? void 0;
+  try {
+    const obj = { ...JSON.parse(raw) };
+    const ymd = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+    if (String(obj["OPEN_ITEMS"] ?? "").toUpperCase() === "X" && (scheduled || !/^\d{8}$/.test(String(obj["OPEN_AT_KEY_DATE"] ?? "")))) obj["OPEN_AT_KEY_DATE"] = ymd;
+    return JSON.stringify(obj);
+  } catch {
+    return raw;
+  }
+}
+
 // ../src/lib/current-stock-map.ts
 var CURRENT_STOCK_TEXT_FIELDS = ["LGOBE", "MAKTX", "MEINS", "MTART", "ROWNO", "SHELFNO", "RACKNO", "BINNO"];
 var CURRENT_STOCK_NUMERIC_FIELDS = ["LABST", "WLABS", "INSME", "WINSM", "SPEME", "WSPEM", "TRAME", "WTRAM"];
@@ -115,12 +182,12 @@ function isCurrentStockEndpoint(name) {
   const n = (name ?? "").replace(/[^a-z0-9]/gi, "").toLowerCase();
   return n.includes("currentstock") || n === "zcurrstk" || n.includes("zdprmisreport");
 }
-function pick(raw, key) {
+function pick2(raw, key) {
   if (raw[key] !== void 0) return raw[key];
   const real = Object.keys(raw).find((k) => k.toLowerCase() === key.toLowerCase());
   return real ? raw[real] : void 0;
 }
-function text2(v) {
+function text3(v) {
   if (v === void 0 || v === null || typeof v === "object") return null;
   const s = String(v).trim();
   return s ? s : null;
@@ -139,15 +206,15 @@ function mapCurrentStockPayload(payload, endpointName, now = /* @__PURE__ */ new
   const byKey = /* @__PURE__ */ new Map();
   let invalid = 0;
   for (const raw of source) {
-    const matnr = text2(pick(raw, "MATNR"));
+    const matnr = text3(pick2(raw, "MATNR"));
     if (!matnr) {
       invalid++;
       continue;
     }
-    const werks = text2(pick(raw, "WERKS")) ?? "", lgort = text2(pick(raw, "LGORT")) ?? "", charg = text2(pick(raw, "CHARG")) ?? "";
+    const werks = text3(pick2(raw, "WERKS")) ?? "", lgort = text3(pick2(raw, "LGORT")) ?? "", charg = text3(pick2(raw, "CHARG")) ?? "";
     const row = { matnr, werks, lgort, charg, raw, source_endpoint: endpointName, synced_at: syncedAt };
-    for (const k of CURRENT_STOCK_TEXT_FIELDS) row[k.toLowerCase()] = text2(pick(raw, k));
-    for (const k of CURRENT_STOCK_NUMERIC_FIELDS) row[k.toLowerCase()] = orderBookNum(pick(raw, k));
+    for (const k of CURRENT_STOCK_TEXT_FIELDS) row[k.toLowerCase()] = text3(pick2(raw, k));
+    for (const k of CURRENT_STOCK_NUMERIC_FIELDS) row[k.toLowerCase()] = orderBookNum(pick2(raw, k));
     byKey.set(`${matnr}|${werks}|${lgort}|${charg}`, row);
   }
   const rows = [...byKey.values()];
@@ -158,7 +225,7 @@ function mapCurrentStockPayload(payload, endpointName, now = /* @__PURE__ */ new
 function isUserDropdownEndpoint(endpointName) {
   return endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase().includes("usermanagementdropdown");
 }
-function text3(v) {
+function text4(v) {
   if (v === void 0 || v === null) return null;
   const s = String(v).trim();
   return s ? s : null;
@@ -186,7 +253,7 @@ function mapUserDropdownPayload(payload, endpointName, now = /* @__PURE__ */ new
   const add = (category, rows2, codeKey, nameKey) => {
     for (const raw of rows2) {
       received++;
-      const code = text3(field(raw, codeKey));
+      const code = text4(field(raw, codeKey));
       if (!code) {
         invalid++;
         continue;
@@ -194,7 +261,7 @@ function mapUserDropdownPayload(payload, endpointName, now = /* @__PURE__ */ new
       byKey.set(`${category}|${code}`, {
         category,
         code,
-        name: text3(field(raw, nameKey)),
+        name: text4(field(raw, nameKey)),
         raw,
         source_endpoint: endpointName,
         synced_at: syncedAt
@@ -219,8 +286,8 @@ function isSitEndpoint(name) {
 }
 
 // ../src/lib/sap-pull-shared.ts
-function salvageTruncatedArray(text4) {
-  const trimmed = text4.trimStart();
+function salvageTruncatedArray(text5) {
+  const trimmed = text5.trimStart();
   if (!trimmed.startsWith("[")) return null;
   let depth = 0;
   let inString = false;
@@ -255,11 +322,11 @@ function salvageTruncatedArray(text4) {
     return null;
   }
 }
-function extractEmbeddedBody(text4) {
+function extractEmbeddedBody(text5) {
   const marker = '"body":"';
-  const start = text4.indexOf(marker);
+  const start = text5.indexOf(marker);
   if (start < 0) return null;
-  const raw = text4.slice(start + marker.length);
+  const raw = text5.slice(start + marker.length);
   try {
     const safe = raw.replace(/\\$/, "");
     return JSON.parse(`"${safe.replace(/"$/, "")}"`);
@@ -477,6 +544,7 @@ function withEndpointDates(endpointName, raw, range, now = /* @__PURE__ */ new D
   if (/^zcashflown?$/.test(endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase())) return raw ?? void 0;
   if (endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase().includes("usermanagementdropdown")) return raw ?? void 0;
   if (isVendorAgeingEndpoint(endpointName)) return withVendorAgeingPayload(raw, now, scheduled);
+  if (isZfbl1nEndpoint(endpointName)) return withZfbl1nPayload(raw, now, scheduled);
   if (/dailyproduction|^zdpr$/.test(endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase())) return withDprDates(raw, range, now);
   if (endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase().includes("orderbook")) return withOrderBookDates(raw, range, now);
   return isOpenSalesOrdersEndpoint(endpointName) ? withOpenSalesOrdersDate(raw, now, scheduled) : withPostingDates(raw, range);
@@ -496,12 +564,15 @@ export {
   isCurrentStockEndpoint,
   isUserDropdownEndpoint,
   isVendorAgeingEndpoint,
+  isZfbl1nEndpoint,
   keyValueObject,
   mapCurrentStockPayload,
   mapUserDropdownPayload,
   mapVendorAgeingPayload,
+  mapZfbl1nPayload,
   salvageTruncatedArray,
   withEndpointDates,
   withPostingDates,
-  withVendorAgeingPayload
+  withVendorAgeingPayload,
+  withZfbl1nPayload
 };

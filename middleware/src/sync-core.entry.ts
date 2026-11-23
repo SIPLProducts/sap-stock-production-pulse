@@ -4,6 +4,7 @@
  * Regenerate with: npm run build:sync-core
  */
 export { mapVendorAgeingPayload, isVendorAgeingEndpoint, withVendorAgeingPayload } from "../../src/lib/vendor-ageing-map";
+export { mapZfbl1nPayload, isZfbl1nEndpoint, withZfbl1nPayload } from "../../src/lib/zfbl1n-map";
 export { mapCurrentStockPayload, isCurrentStockEndpoint } from "../../src/lib/current-stock-map";
 export { mapUserDropdownPayload, isUserDropdownEndpoint } from "../../src/lib/user-dropdown-map";
 export {

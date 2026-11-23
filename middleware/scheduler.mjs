@@ -22,6 +22,8 @@ import {
   isCurrentStockEndpoint,
   isVendorAgeingEndpoint,
   mapVendorAgeingPayload,
+  isZfbl1nEndpoint,
+  mapZfbl1nPayload,
   keyValueObject,
   formatBytes,
 } from "./sync-core.mjs";
@@ -179,6 +181,20 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
 
   /** Maps the SAP payload and writes it to its report table. */
   async function storeRows(payload, endpoint, requestSnapshot) {
+    if (isZfbl1nEndpoint(endpoint)) {
+      const { received, rows, invalid, duplicates } = mapZfbl1nPayload(payload, endpoint);
+      for (let i = 0; i < rows.length; i += BATCH) {
+        const { error } = await db.from("zfbl1n_items").insert(rows.slice(i, i + BATCH));
+        if (error) { await db.from("zfbl1n_items").delete().eq("synced_at", rows[0].synced_at); throw new Error(error.message); }
+      }
+      let removed = 0;
+      if (rows.length) {
+        const { count, error } = await db.from("zfbl1n_items").delete({ count: "exact" }).lt("synced_at", rows[0].synced_at);
+        if (error) throw new Error(error.message);
+        removed = count ?? 0;
+      }
+      return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "zfbl1n_items", snapshotId: null, postingFrom: null, postingTo: null };
+    }
     if (isVendorAgeingEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint);
       for (let i = 0; i < rows.length; i += BATCH) {
