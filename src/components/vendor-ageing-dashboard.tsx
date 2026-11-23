@@ -87,21 +87,21 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
         <p className="text-[10px] font-semibold opacity-95">{label}</p>
         <p title={value} className="mt-1 truncate text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p><p className="text-[10px] opacity-90">{note}</p></div>)}
     </div>
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_1fr]">
-      <Card title="Ageing Buckets" sub="Val in Cr" tint="sky"><Donut data={VA_BUCKETS.map((name, i) => ({ name, value: t.buckets[i] ?? 0 })).filter((d) => d.value > 0)} heads={["Bucket", "Val", "%"]} /></Card>
-      <Card title="MSME vs Non-MSME Exposure" sub="Val in Cr" tint="peach"><Donut data={msme} heads={["Type", "Val", "%"]} /></Card>
-    </div>
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <Card title="Top 10 Vendors by Payable" sub="Val in Cr" tint="teal"><BarList data={topPay} /></Card>
-      <Card title="Top 10 Vendors by Advance" sub="Val in Cr" tint="sky"><BarList data={topAdv} /></Card>
-      <Card title="Top 10 Profit Centers" sub="Val in Cr" tint="amber"><BarList data={topPc} /></Card>
-    </div>
     <div>
+      <Card title="Ageing Buckets" sub="Val in Cr" tint="sky"><Donut data={VA_BUCKETS.map((name, i) => ({ name, value: t.buckets[i] ?? 0 })).filter((d) => d.value > 0)} heads={["Bucket", "Val", "%"]} /></Card>
+    </div>
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <Card title="MSME vs Non-MSME Exposure" sub="Val in Cr" tint="peach"><Donut data={msme} heads={["Type", "Val", "%"]} /></Card>
       <Card title="GL Account & Document Type Split" sub="Payable · Val in Cr" tint="rose">
         <div className="space-y-2">{glSplit.rows.map((g) => <div key={g.name} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-2 text-[11px]"><span title={g.name} className="truncate">{g.name}</span>
           <div className="flex h-4 overflow-hidden rounded bg-muted" style={{ width: `${(g.total / glMax) * 100}%` }}>{glSplit.keys.map((k, i) => (g.parts[k] ?? 0) > 0 ? <div key={k} title={`${k}: ₹ ${cr(g.parts[k] ?? 0)} Cr`} style={{ width: `${((g.parts[k] ?? 0) / g.total) * 100}%`, background: SEG[i] }} /> : null)}</div>
           <span className="tabular-nums">₹ {cr(g.total)}</span></div>)}
           {glSplit.rows.length ? <div className="flex flex-wrap gap-3 pt-1 text-[10px] text-muted-foreground">{glSplit.keys.map((k, i) => <span key={k} className="flex items-center gap-1"><span className="size-2 rounded-full" style={{ background: SEG[i] }} />{k}</span>)}</div> : <p className="text-xs text-muted-foreground">No data</p>}</div></Card>
+    </div>
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <Card title="Top 10 Vendors by Payable" sub="Val in Cr" tint="teal"><BarList data={topPay} /></Card>
+      <Card title="Top 10 Vendors by Advance" sub="Val in Cr" tint="sky"><BarList data={topAdv} /></Card>
+      <Card title="Top 10 Profit Centers" sub="Val in Cr" tint="amber"><BarList data={topPc} /></Card>
     </div>
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_1fr]">
       <Card title="Outstanding by Company Code" sub="Val in Cr" tint="copper"><PlantColumns data={cos} /></Card>
