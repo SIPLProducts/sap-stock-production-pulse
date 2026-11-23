@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Lock, User } from "lucide-react";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -110,7 +111,7 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Left branding panel */}
-      <div className="relative hidden flex-col overflow-hidden bg-surface p-10 text-foreground lg:flex">
+      <div className="relative hidden flex-col overflow-hidden bg-[var(--neu-surface)] p-10 text-foreground lg:flex">
         {/* radial glow behind copy */}
         <div
           aria-hidden
@@ -141,86 +142,42 @@ function AuthPage() {
       </div>
 
       {/* Right sign-in panel */}
-      <div className="relative flex items-center justify-center bg-surface p-6">
-        <div className="w-full max-w-md">
-          <div className="rounded-3xl bg-card-raised p-9 shadow-[var(--shadow-soft-card)] ring-1 ring-ink/5">
-            <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">
-              Welcome back
-            </h1>
-            <div className="mt-2 h-0.5 w-10 rounded-full bg-gold" />
-            <p className="mt-3 text-sm text-muted-foreground">
-              Please sign in to access your dashboard.
-            </p>
+      <div className="relative flex items-center justify-center bg-[var(--neu-surface)] p-6">
+        <div className="flex w-full max-w-[34rem] flex-col items-center justify-center rounded-3xl bg-[var(--neu-surface)] px-8 py-10 shadow-[var(--shadow-neu-raised)] md:aspect-square md:rounded-full md:px-20">
+          <img src={reslLogo.url} alt="RESL logo" className="h-12 w-auto" />
+          <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground">Login</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Sign in to your account</p>
 
-            <form onSubmit={handleSignIn} className="mt-6 space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="identifier" className="text-xs font-semibold text-foreground">
-                  Email or username <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="identifier"
-                    type="text"
-                    autoComplete="username"
-                    placeholder="Enter your username"
-                    required
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    className="h-11 rounded-lg border-transparent bg-muted pl-10 focus-visible:border-gold focus-visible:ring-gold/40"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-xs font-semibold text-foreground">
-                  Password <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-lg border-transparent bg-muted pl-10 focus-visible:border-gold focus-visible:ring-gold/40"
-                  />
-                </div>
-              </div>
+          <form onSubmit={handleSignIn} className="mt-7 w-full max-w-sm space-y-5">
+            <div className="relative rounded-xl bg-[var(--neu-surface)] shadow-[var(--shadow-neu-inset)] after:absolute after:inset-x-1 after:bottom-0 after:h-0.5 after:rounded-full after:bg-[image:var(--gradient-brand)]">
+              <Label htmlFor="identifier" className="sr-only">Email or username</Label>
+              <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="identifier" type="text" autoComplete="username" placeholder="Email or username" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} className="h-12 rounded-xl border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0" />
+            </div>
+            <div className="relative rounded-xl bg-[var(--neu-surface)] shadow-[var(--shadow-neu-inset)] after:absolute after:inset-x-1 after:bottom-0 after:h-0.5 after:rounded-full after:bg-[image:var(--gradient-brand)]">
+              <Label htmlFor="password" className="sr-only">Password</Label>
+              <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 rounded-xl border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0 pr-11" />
+              <button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
 
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
-                  <Checkbox
-                    checked={remember}
-                    onCheckedChange={(checked) => setRemember(checked === true)}
-                  />
-                  Remember me
-                </label>
-                <button
-                  type="button"
-                  className="text-xs font-medium text-ink hover:underline"
-                  onClick={() =>
-                    toast.info("Please contact your administrator to reset your password.")
-                  }
-                >
-                  Forgot password?
-                </button>
-              </div>
+            <div className="flex items-center justify-between">
+              <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                <Checkbox checked={remember} onCheckedChange={(checked) => setRemember(checked === true)} />
+                Remember me
+              </label>
+              <button type="button" className="text-xs text-muted-foreground hover:text-foreground hover:underline" onClick={() => toast.info("Please contact your administrator to reset your password.")}>
+                Forgot password?
+              </button>
+            </div>
 
-              <Button
-                type="submit"
-                className="h-11 w-full rounded-lg bg-ink text-sm font-semibold text-ink-foreground shadow-md shadow-ink/20 hover:bg-ink/90"
-                disabled={busy}
-              >
-                {busy ? "Signing in…" : "Sign In"}
-              </Button>
-            </form>
-          </div>
-
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            Portal access is provisioned by your administrator.
-          </p>
+            <Button type="submit" disabled={busy} className="h-12 w-full rounded-xl bg-[image:var(--gradient-brand)] text-sm font-bold tracking-[0.25em] text-primary-foreground shadow-lg shadow-primary/30 hover:opacity-95">
+              {busy ? "SIGNING IN…" : "SIGN IN"}
+            </Button>
+            <p className="text-center text-xs text-muted-foreground">Authorised RESL staff only</p>
+          </form>
         </div>
       </div>
     </div>
