@@ -3315,6 +3315,180 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_ageing: {
+        Row: {
+          banka: string | null
+          bankn: string | null
+          bedat: string | null
+          belnr: string | null
+          belnr1: string | null
+          blart: string | null
+          bldat: string | null
+          budat: string | null
+          budat_mkpf: string | null
+          bukrs: string | null
+          cert_id: string | null
+          d10: number | null
+          d20: number | null
+          d30: number | null
+          d40: number | null
+          d50: number | null
+          d60: number | null
+          d70: number | null
+          d80: number | null
+          d90: number | null
+          days: number | null
+          ebeln: string | null
+          gjahr: number | null
+          hkont: string | null
+          id: number
+          ifsc: string | null
+          j_1ipanno: string | null
+          key_date: string | null
+          koinh: string | null
+          lfbnr: string | null
+          lifnr: string | null
+          main_cert: string | null
+          mindk_desc: string | null
+          msme_no: string | null
+          name1: string | null
+          net_due_date: string | null
+          prctr: string | null
+          prctr_text: string | null
+          raw: Json | null
+          reg_city: string | null
+          run_date: string | null
+          segment: string | null
+          segment_text: string | null
+          sgtxt: string | null
+          source_endpoint: string | null
+          status: string | null
+          synced_at: string
+          t_vbeln: string | null
+          text1: string | null
+          txt50: string | null
+          umskz: string | null
+          valid_from: string | null
+          valid_to: string | null
+          wrbtr: number | null
+          zterm: string | null
+        }
+        Insert: {
+          banka?: string | null
+          bankn?: string | null
+          bedat?: string | null
+          belnr?: string | null
+          belnr1?: string | null
+          blart?: string | null
+          bldat?: string | null
+          budat?: string | null
+          budat_mkpf?: string | null
+          bukrs?: string | null
+          cert_id?: string | null
+          d10?: number | null
+          d20?: number | null
+          d30?: number | null
+          d40?: number | null
+          d50?: number | null
+          d60?: number | null
+          d70?: number | null
+          d80?: number | null
+          d90?: number | null
+          days?: number | null
+          ebeln?: string | null
+          gjahr?: number | null
+          hkont?: string | null
+          id?: number
+          ifsc?: string | null
+          j_1ipanno?: string | null
+          key_date?: string | null
+          koinh?: string | null
+          lfbnr?: string | null
+          lifnr?: string | null
+          main_cert?: string | null
+          mindk_desc?: string | null
+          msme_no?: string | null
+          name1?: string | null
+          net_due_date?: string | null
+          prctr?: string | null
+          prctr_text?: string | null
+          raw?: Json | null
+          reg_city?: string | null
+          run_date?: string | null
+          segment?: string | null
+          segment_text?: string | null
+          sgtxt?: string | null
+          source_endpoint?: string | null
+          status?: string | null
+          synced_at?: string
+          t_vbeln?: string | null
+          text1?: string | null
+          txt50?: string | null
+          umskz?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          wrbtr?: number | null
+          zterm?: string | null
+        }
+        Update: {
+          banka?: string | null
+          bankn?: string | null
+          bedat?: string | null
+          belnr?: string | null
+          belnr1?: string | null
+          blart?: string | null
+          bldat?: string | null
+          budat?: string | null
+          budat_mkpf?: string | null
+          bukrs?: string | null
+          cert_id?: string | null
+          d10?: number | null
+          d20?: number | null
+          d30?: number | null
+          d40?: number | null
+          d50?: number | null
+          d60?: number | null
+          d70?: number | null
+          d80?: number | null
+          d90?: number | null
+          days?: number | null
+          ebeln?: string | null
+          gjahr?: number | null
+          hkont?: string | null
+          id?: number
+          ifsc?: string | null
+          j_1ipanno?: string | null
+          key_date?: string | null
+          koinh?: string | null
+          lfbnr?: string | null
+          lifnr?: string | null
+          main_cert?: string | null
+          mindk_desc?: string | null
+          msme_no?: string | null
+          name1?: string | null
+          net_due_date?: string | null
+          prctr?: string | null
+          prctr_text?: string | null
+          raw?: Json | null
+          reg_city?: string | null
+          run_date?: string | null
+          segment?: string | null
+          segment_text?: string | null
+          sgtxt?: string | null
+          source_endpoint?: string | null
+          status?: string | null
+          synced_at?: string
+          t_vbeln?: string | null
+          text1?: string | null
+          txt50?: string | null
+          umskz?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          wrbtr?: number | null
+          zterm?: string | null
+        }
+        Relationships: []
+      }
       zcash_flow: {
         Row: {
           classification: string | null

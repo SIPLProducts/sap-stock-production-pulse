@@ -36,6 +36,8 @@ import {
   mapCurrentStockPayload,
   isCurrentStockEndpoint,
   isDailyProductionEndpoint,
+  isVendorAgeingEndpoint,
+  mapVendorAgeingPayload,
   mapDailyProductionPayload,
   mapPurchaseOrdersPayload,
   isPurchaseOrdersEndpoint,
@@ -211,6 +213,20 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         removed = count ?? 0;
       }
       return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "purchase_orders", snapshotId: null, postingFrom: null, postingTo: null };
+    }
+    if (isVendorAgeingEndpoint(endpoint)) {
+      const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint);
+      for (let i = 0; i < rows.length; i += BATCH) {
+        const { error } = await db.from("vendor_ageing").insert(rows.slice(i, i + BATCH));
+        if (error) { await db.from("vendor_ageing").delete().eq("synced_at", rows[0].synced_at); throw new Error(error.message); }
+      }
+      let removed = 0;
+      if (rows.length) {
+        const { count, error } = await db.from("vendor_ageing").delete({ count: "exact" }).lt("synced_at", rows[0].synced_at);
+        if (error) throw new Error(error.message);
+        removed = count ?? 0;
+      }
+      return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "vendor_ageing", snapshotId: null, postingFrom: null, postingTo: null };
     }
     if (isDailyProductionEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapDailyProductionPayload(payload, endpoint);

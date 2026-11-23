@@ -1,3 +1,4 @@
+import { isVendorAgeingEndpoint, withVendorAgeingPayload } from "./vendor-ageing-map";
 /**
  * Client-safe helpers shared by the server-side SAP pull and the static-build
  * browser sync. Pure functions only — no Supabase admin client, no env reads.
@@ -313,6 +314,7 @@ export function withEndpointDates(
   if (/^zcashflown?$/.test(endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase())) return raw ?? undefined;
   // User Management dropdowns: no date injection, payload sent as saved.
   if (endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase().includes("usermanagementdropdown")) return raw ?? undefined;
+  if (isVendorAgeingEndpoint(endpointName)) return withVendorAgeingPayload(raw, now, scheduled);
   if (/dailyproduction|^zdpr$/.test(endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase())) return withDprDates(raw, range, now);
   if (endpointName.replace(/[^a-z0-9]/gi, "").toLowerCase().includes("orderbook")) return withOrderBookDates(raw, range, now);
   return isOpenSalesOrdersEndpoint(endpointName)

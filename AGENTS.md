@@ -52,3 +52,4 @@
 - Daily Production Report (ZDPR) rows upsert into public.daily_production on MBLNR + MJAHR + ZEILE; after a successful non-empty reply, lines inside the returned posting-date span not refreshed are deleted; FROMDT/TODT (YYYY-MM-DD) follow the endpoint's date window, because SAP returns goods movements by posting date.
 
 - Import the shared logo CDN pointer in portal and PDF headers, preserving its original colors; one asset keeps branding consistent across screens.
+- Vendor Ageing (ZFI_VAG) inserts full snapshots into public.vendor_ageing and deletes older synced_at rows only after a successful non-empty insert, because SAP returns all open items for the key date with no unique line key; S_KDATE defaults to today and exactly one of R1/R2/R3 (Due/Posting/GRN basis) is X.
