@@ -908,7 +908,7 @@
   animation: bl-overlay-in 0.4s ease-out both;
 }
 .brand-loader__stage { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.brand-loader__mark { position: relative; width: 180px; aspect-ratio: 1150 / 624; animation: bl-cycle 5s ease-in-out infinite; }
+.brand-loader__mark { position: relative; width: 200px; aspect-ratio: 1150 / 624; animation: bl-cycle 5s ease-in-out infinite; }
 .brand-loader__rings { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .brand-loader__ring {
   fill: none; stroke: #d9222a; stroke-width: 92;
@@ -918,14 +918,14 @@
 .brand-loader__ring--left { animation: bl-draw 5s cubic-bezier(.65,0,.35,1) infinite; }
 .brand-loader__ring--right { animation: bl-draw-2 5s cubic-bezier(.65,0,.35,1) infinite; }
 .brand-loader__logo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; }
-.brand-loader__logo--r { clip-path: inset(0 50% 0 0); transform-origin: 27% 50%; animation: bl-r 5s ease-out infinite; }
-.brand-loader__logo--e { clip-path: inset(0 0 0 50%); transform-origin: 73% 50%; animation: bl-e 5s ease-out infinite; }
+.brand-loader__logo--r { clip-path: inset(0 53% 0 0); transform-origin: 27% 50%; animation: bl-r 5s ease-out infinite; }
+.brand-loader__logo--e { clip-path: inset(0 0 0 47%); transform-origin: 73% 50%; animation: bl-e 5s ease-out infinite; }
 .brand-loader__title { margin-top: 1.25rem; font-size: 1.05rem; font-weight: 600; letter-spacing: .08em; color: var(--foreground); animation: bl-title 5s ease-out infinite; }
 .brand-loader__tag { margin-top: .25rem; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-foreground); animation: bl-tag 5s ease-out infinite; }
 
 @keyframes bl-overlay-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes bl-draw   { 0% { stroke-dashoffset: 1653; } 22%, 100% { stroke-dashoffset: 0; } }
-@keyframes bl-draw-2 { 0%, 8% { stroke-dashoffset: 1653; } 30%, 100% { stroke-dashoffset: 0; } }
+@keyframes bl-draw   { 0% { stroke-dashoffset: 1653; opacity: 1; } 22%, 45% { stroke-dashoffset: 0; opacity: 1; } 55%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes bl-draw-2 { 0%, 8% { stroke-dashoffset: 1653; opacity: 1; } 30%, 45% { stroke-dashoffset: 0; opacity: 1; } 55%, 100% { stroke-dashoffset: 0; opacity: 0; } }
 @keyframes bl-r { 0%, 30% { opacity: 0; transform: scale(.7); } 42%, 100% { opacity: 1; transform: scale(1); } }
 @keyframes bl-e { 0%, 38% { opacity: 0; transform: scale(.7); } 50%, 100% { opacity: 1; transform: scale(1); } }
 @keyframes bl-title { 0%, 48% { opacity: 0; transform: translateY(6px); } 58%, 86% { opacity: 1; transform: none; } 96%, 100% { opacity: 0; } }

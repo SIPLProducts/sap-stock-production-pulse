@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { TINTS } from "@/lib/card-tints";
 import { BarList, Card, Donut, PlantColumns } from "@/components/open-po-dashboard";
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts";
 import { datedFileName } from "@/lib/format";
 import { activeFilters, getZfPage, zfOptionsQuery, zfSummaryQuery, ZF_EMPTY, type ZfFilters, type ZfRow, type ZfSummary } from "@/lib/zfbl1n-data";
 
@@ -19,7 +20,10 @@ const CR = 1e7;
 const cr = (v: number) => (v / CR).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const num = (v: number, d = 2) => v.toLocaleString("en-IN", { maximumFractionDigits: d });
 const ddmm = (iso: string | null | undefined) => (iso ? `${iso.slice(8, 10)}-${iso.slice(5, 7)}-${iso.slice(0, 4)}` : "");
-const PAGE = 50;
+const PAGE_SIZES = [50, 100, 250, 500];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+/** "2019-02" → "Feb-19". */
+export function zfMonthLabel(ym: string) { const m = Number(ym.slice(5, 7)); return MON[m - 1] ? `${MON[m - 1]}-${ym.slice(2, 4)}` : ym; }
 const TYPES: [string, string][] = [["normal", "Normal items"], ["special", "Special G/L transactions"], ["noted", "Noted items"], ["parked", "Parked items"], ["customer", "Customer items"]];
 const STATUS: [ZfFilters["status"], string][] = [["open", "Open items"], ["cleared", "Cleared items"], ["all", "All items"]];
 const HEADS = ["Company", "Vendor", "Vendor Name", "Doc No", "Item", "Doc Type", "Posting Date", "Doc Date", "Due Date", "Days in Arrears", "Profit Center", "G/L", "G/L Text", "Assignment", "Text", "Clearing Doc", "Clearing Date", "Currency", "Amount (₹)"];
@@ -35,10 +39,11 @@ export function Zfbl1nDashboard() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [page, setPage] = useState(0);
+  const [PAGE, setPageSize] = useState(50);
   const af = activeFilters(f);
   const opts = useQuery(zfOptionsQuery).data ?? { vendors: [], bukrs: [], prctr: [] };
   const sum = useQuery({ ...zfSummaryQuery(af), placeholderData: keepPreviousData });
-  const tbl = useQuery({ queryKey: ["zfbl1n", "page", af, q, page], queryFn: () => getZfPage(af, q, page * PAGE, PAGE), placeholderData: keepPreviousData, staleTime: Infinity, refetchOnWindowFocus: false });
+  const tbl = useQuery({ queryKey: ["zfbl1n", "page", af, q, page, PAGE], queryFn: () => getZfPage(af, q, page * PAGE, PAGE), placeholderData: keepPreviousData, staleTime: Infinity, refetchOnWindowFocus: false });
   const set = (p: Partial<ZfFilters>) => { setF({ ...f, ...p }); setPage(0); };
   const range: DateRange | undefined = f.post_from ? { from: new Date(f.post_from), ...(f.post_to ? { to: new Date(f.post_to) } : {}) } : undefined;
   const s: ZfSummary | undefined = sum.data;
@@ -101,7 +106,7 @@ export function Zfbl1nDashboard() {
       </div>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <Card title="Company Code Wise" sub="Val in Cr" tint="copper"><PlantColumns data={s.company.slice(0, 15).map((d) => ({ ...d, value: d.value / CR }))} /></Card>
-        <Card title="Month Wise Posting" sub="Last 24 months · Val in Cr" tint="sky"><PlantColumns data={s.months.map((d) => ({ name: `${d.name.slice(5)}-${d.name.slice(2, 4)}`, value: d.value / CR }))} /></Card>
+        <Card title="Month Wise Posting" sub="Net posting per month · Val in Cr" tint="sky"><MonthBars data={s.months.map((d) => ({ name: zfMonthLabel(d.name), value: d.value / CR }))} /></Card>
       </div>
     </>}
     <div data-pdf-exclude><Card title="ZFBL1N Line Items" tint="neutral">
@@ -109,7 +114,25 @@ export function Zfbl1nDashboard() {
       <div className="overflow-x-auto"><table className="w-full min-w-[2000px] text-[11px]"><thead><tr className="border-b text-left">{HEADS.map((h) => <th key={h} className="whitespace-nowrap px-2 py-1.5 font-bold">{h}</th>)}</tr></thead>
         <tbody>{(tbl.data?.rows ?? []).map((r, i) => <tr key={i} className="border-b border-border/50">{cells(r).map((v, j) => <td key={j} className={`whitespace-nowrap px-2 py-1 ${typeof v === "number" ? "text-right tabular-nums" : ""}`}>{typeof v === "number" ? num(v) : v}</td>)}</tr>)}</tbody>
         <tfoot><tr className="border-t-2 border-border font-bold"><td className="px-2 py-1.5" colSpan={HEADS.length - 1}>Total ({num(tbl.data?.total ?? 0, 0)} lines)</td><td className="px-2 py-1.5 text-right tabular-nums">{num(tbl.data?.sum ?? 0)}</td></tr></tfoot></table></div>
-      <div className="mt-2 flex items-center gap-2 text-[11px]"><Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>Prev</Button><span>Page {page + 1} / {pages}</span><Button size="sm" variant="outline" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</Button></div>
+      <div className="mt-2 flex items-center gap-2 text-[11px]"><label className="flex items-center gap-1 text-muted-foreground">Rows per page<select className="h-8 rounded-md border border-border bg-background px-1.5 text-xs text-foreground" value={PAGE} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}>{PAGE_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}</select></label><Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>Prev</Button><span>Page {page + 1} / {pages}</span><Button size="sm" variant="outline" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</Button></div>
     </Card></div>
   </div>;
+}
+
+function MonthBars({ data }: { data: { name: string; value: number }[] }) {
+  const fmt = (v: number) => v.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return <div className="h-72 w-full"><ResponsiveContainer width="100%" height="100%">
+    <BarChart data={data} margin={{ top: 22, right: 8, left: 0, bottom: 8 }}>
+      <defs><linearGradient id="zf-mon-pos" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--chart-1)" stopOpacity={1} /><stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.45} /></linearGradient>
+        <linearGradient id="zf-mon-neg" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stopColor="var(--destructive)" stopOpacity={1} /><stop offset="100%" stopColor="var(--destructive)" stopOpacity={0.45} /></linearGradient></defs>
+      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+      <XAxis dataKey="name" interval={0} angle={-40} textAnchor="end" height={50} tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
+      <YAxis width={56} tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} tickFormatter={(v: number) => fmt(v)} />
+      <ReferenceLine y={0} stroke="var(--muted-foreground)" />
+      <Tooltip formatter={(v: number) => [`₹ ${fmt(v)} Cr`, "Net posting"]} contentStyle={{ fontSize: 11, background: "var(--card)", border: "1px solid var(--border)" }} />
+      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+        {data.map((d, i) => <Cell key={i} fill={d.value < 0 ? "url(#zf-mon-neg)" : "url(#zf-mon-pos)"} />)}
+        <LabelList dataKey="value" position="top" formatter={(v: number) => fmt(v)} style={{ fontSize: 9, fill: "var(--foreground)" }} />
+      </Bar>
+    </BarChart></ResponsiveContainer></div>;
 }
