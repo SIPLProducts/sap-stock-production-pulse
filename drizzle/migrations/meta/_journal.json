@@ -15,6 +15,13 @@
       "when": 1795456027941,
       "tag": "0001_zfbl1n",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795456555985,
+      "tag": "0002_restore_signup_trigger",
+      "breakpoints": true
     }
   ]
 }
