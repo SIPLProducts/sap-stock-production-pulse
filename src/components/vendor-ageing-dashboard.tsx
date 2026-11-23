@@ -17,7 +17,7 @@ const CR = 1e7;
 const cr = (v: number) => (v / CR).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const num = (v: number, d = 2) => v.toLocaleString("en-IN", { maximumFractionDigits: d });
 const ddmm = (iso: string) => (iso ? `${iso.slice(8, 10)}-${iso.slice(5, 7)}-${iso.slice(0, 4)}` : "");
-const PAGE = 50;
+const PAGE_SIZES = [50, 100, 250, 500];
 type Key = "vendor" | "bukrs" | "docType" | "prctr" | "pcText" | "gl" | "msme";
 const EMPTY: Record<Key, string[] | null> = { vendor: null, bukrs: null, docType: null, prctr: null, pcText: null, gl: null, msme: null };
 const BASES: [VaBasis, string][] = [["all", "All"], ["due", "Due Date"], ["post", "Posting Date"], ["grn", "GRN Date"]];
@@ -31,6 +31,7 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
   const [basis, setBasis] = useState<VaBasis>("all");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(0);
+  const [PAGE, setPageSize] = useState(50);
   const msmeLabel = (r: VaRow) => (isMsme(r) ? "MSME" : "Non-MSME");
   const opts = useMemo(() => {
     const pairs = (k: (r: VaRow) => string, l: (r: VaRow) => string) => [...new Map(rows.filter((r) => k(r)).map((r) => [k(r), l(r) && l(r) !== k(r) ? `${k(r)} - ${l(r)}` : k(r)]))].sort((a, b) => a[0].localeCompare(b[0])).map(([value, label]) => ({ value, label }));
@@ -110,7 +111,7 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
       <div className="overflow-x-auto"><table className="w-full min-w-[2400px] text-[11px]"><thead><tr className="border-b text-left">{HEADS.map((h) => <th key={h} className="whitespace-nowrap px-2 py-1.5 font-bold">{h}</th>)}</tr></thead>
         <tbody>{table.slice(page * PAGE, page * PAGE + PAGE).map((r, i) => <tr key={i} className="border-b border-border/50">{cells(r).map((v, j) => <td key={j} className={`whitespace-nowrap px-2 py-1 ${typeof v === "number" ? "text-right tabular-nums" : ""}`}>{typeof v === "number" ? num(v) : v}</td>)}</tr>)}</tbody>
         <tfoot><tr className="border-t-2 border-border font-bold"><td className="px-2 py-1.5" colSpan={18}>Total ({table.length} lines)</td>{[tt.total, ...tt.buckets].map((v, i) => <td key={i} className="px-2 py-1.5 text-right tabular-nums">{num(v)}</td>)}</tr></tfoot></table></div>
-      <div className="mt-2 flex items-center gap-2 text-[11px]"><Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>Prev</Button><span>Page {page + 1} / {pages}</span><Button size="sm" variant="outline" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</Button></div>
+      <div className="mt-2 flex items-center gap-2 text-[11px]"><label className="flex items-center gap-1 text-muted-foreground">Rows per page<select className="h-8 rounded-md border border-border bg-background px-1.5 text-xs text-foreground" value={PAGE} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}>{PAGE_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}</select></label><Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(page - 1)}>Prev</Button><span>Page {page + 1} / {pages}</span><Button size="sm" variant="outline" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</Button></div>
     </Card></div>
   </div>;
 }
