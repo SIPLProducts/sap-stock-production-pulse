@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { applyDateWindow, buildPayloadText, parsePayloadFields, stripJsonComments } from "@/lib/payload-fields";
 import { getPayloadPath, setPayloadPaths } from "@/lib/payload-paths";
-import { isOpenPoEndpoint } from "@/lib/open-po-map";
-import { isDailyProductionEndpoint } from "@/lib/daily-production-map";
 const dprIso = (d: string) => (/^\d{8}$/.test(d) ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : d);
-import { isPurchaseOrdersEndpoint } from "@/lib/purchase-orders-map";
+// Retired report endpoints (their screens were removed); kept as no-op checks so the form stays generic.
+const isOpenPoEndpoint = (_name: string) => false;
+const isDailyProductionEndpoint = (_name: string) => false;
+const isPurchaseOrdersEndpoint = (_name: string) => false;
 import { isSitEndpoint } from "@/lib/sit-map";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/public/sap/pull/zfisales")({
           return Response.json({ error: "Invalid sync token" }, { status: 401 });
         }
 
-        let endpointName = "Sales_Reports_KPI";
+        let endpointName = "Vendor_Ageing";
         try {
           const body = (await request.json()) as { endpoint?: string };
           if (body?.endpoint) endpointName = String(body.endpoint);

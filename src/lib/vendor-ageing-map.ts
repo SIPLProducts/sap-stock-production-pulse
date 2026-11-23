@@ -4,7 +4,6 @@
  * non-empty run replaces the whole snapshot (no unique document key exists).
  */
 import { orderBookNum } from "./order-book-map";
-import { sapIsoDate } from "./daily-production-map";
 
 const TEXT = ["LIFNR", "NAME1", "J_1IPANNO", "MINDK_DESC", "BELNR", "BLART", "BUKRS", "PRCTR", "SGTXT", "T_VBELN", "EBELN", "HKONT", "TXT50", "UMSKZ",
   "IFSC", "BANKN", "BANKA", "KOINH", "SEGMENT", "SEGMENT_TEXT", "PRCTR_TEXT", "MSME_NO", "CERT_ID", "STATUS", "REG_CITY", "MAIN_CERT", "ZTERM", "TEXT1", "LFBNR", "BELNR1"];
@@ -48,4 +47,14 @@ export function withVendorAgeingPayload(raw: string | null | undefined, now: Dat
     for (const k of ["R1", "R2", "R3"]) obj[k] = k === picked ? "X" : "";
     return JSON.stringify(obj);
   } catch { return raw; }
+}
+
+function text0(v: unknown) { if (v == null || typeof v === "object") return null; const s = String(v).trim(); return s || null; }
+export function sapIsoDate(v: unknown): string | null {
+  const s = text0(v);
+  if (!s || /^0+$/.test(s.replace(/\D/g, ""))) return null;
+  let m = s.match(/^(\d{4})-?(\d{2})-?(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+  return m ? `${m[3]}-${m[2]!.padStart(2, "0")}-${m[1]!.padStart(2, "0")}` : null;
 }

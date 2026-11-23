@@ -20,15 +20,6 @@ import {
   UsersRound,
 } from "lucide-react";
 import type { TileRecord } from "@/lib/sap.functions";
-import { NetSalesLaunchCard } from "@/components/net-sales-launch-card";
-import { OpenSalesOrdersLaunchCard, OrderBookLaunchCard, SitLaunchCard, SalesRegisterLaunchCard } from "@/components/open-sales-orders-launch-card";
-import { CashFlowLaunchCard } from "@/components/cash-flow-launch-card";
-import { PurchaseRegisterLaunchCard } from "@/components/purchase-register-launch-card";
-import { useQuery } from "@tanstack/react-query";
-import { zrmmatRowsQuery } from "@/components/zrmmat-compare-card";
-import { zrmmatMaterials } from "@/lib/purchase-zrmmat-compare";
-import { OpenPoLaunchCard } from "@/components/open-po-launch-card";
-import { PurchaseOrdersLaunchCard } from "@/components/purchase-orders-launch-card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -110,15 +101,6 @@ function CardSurface({ label, value, note, icon: Icon, trend, href, onOpen, acce
 
 export function TileCard({ tile, kpi }: { tile: TileRecord; kpi?: KpiValue }) {
   const fallback = <CardSurface label={tile.title} value={kpi ? `${compact(kpi.value)}${kpi.unit ? ` ${kpi.unit}` : ""}` : "Open"} note={kpi?.footer ?? tile.subtitle ?? "Live SAP report"} icon={ICONS[tile.kpi_key as keyof typeof ICONS] ?? TableProperties} trend={kpi?.trend} href={tile.target_path ?? "/launchpad"} accent={(tile.sort_order % 6) + 1} />;
-  if (tile.kind === "launch" && tile.target_path === "/reports/module/sd") return <NetSalesLaunchCard fallback={fallback} />;
-  if (tile.kpi_key === "sd_open_orders") return <OpenSalesOrdersLaunchCard fallback={fallback} />;
-  if (tile.kpi_key === "sd_order_book" || tile.target_path === "/reports/sd/order-book") return <OrderBookLaunchCard fallback={fallback} />;
-  if (tile.kpi_key === "sd_sit" || tile.target_path === "/reports/sd/sit") return <SitLaunchCard fallback={fallback} />;
-  if (tile.target_path === "/reports/sd/dispatches") return <SalesRegisterLaunchCard fallback={fallback} />;
-  if (tile.kpi_key === "fi_cash_flow") return <CashFlowLaunchCard fallback={fallback} />;
-  if (tile.target_path === "/reports/mm/open-purchase-orders") return <OpenPoLaunchCard fallback={fallback} />;
-  if (tile.target_path === "/reports/mm/purchase-orders") return <PurchaseOrdersLaunchCard fallback={fallback} />;
-  if (tile.target_path === "/reports/mm/purchase-register") return <PurchaseRegisterLaunchCard fallback={fallback} />;
   if (tile.kpi_key === "table_zrmmat") return <ZkeyrmTile tile={tile} />;
   const Icon = ICONS[tile.kpi_key as keyof typeof ICONS] ?? TableProperties;
   const href = tile.target_path || "/launchpad";
@@ -163,7 +145,5 @@ export function TableStatusTile({ title, value, note, href, action = "Open", ico
   return <CompactTableTile title={title} value={value} note={note} href={href} action={action === "Open table" ? "Open" : action} icon={icon} accent={accent}>{children}</CompactTableTile>;
 }
 function ZkeyrmTile({ tile }: { tile: TileRecord }) {
-  const q = useQuery({ ...zrmmatRowsQuery, refetchOnWindowFocus: false });
-  const count = q.data ? zrmmatMaterials(q.data).length : null;
-  return <CompactTableTile title="ZKEYRM" value={count == null ? (q.isLoading ? "…" : "Open") : `${count.toLocaleString("en-IN")} ${count === 1 ? "material" : "materials"}`} note="Tables Master" href={tile.target_path ?? "/launchpad"} accent={(tile.sort_order % 6) + 1} />;
+  return <CompactTableTile title="ZKEYRM" value="Open" note="Tables Master" href={tile.target_path ?? "/launchpad"} accent={(tile.sort_order % 6) + 1} />;
 }

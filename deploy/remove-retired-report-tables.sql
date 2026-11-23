@@ -1,0 +1,20 @@
+-- Removes retired report screens' tables and helper functions (DATA IS PERMANENTLY DELETED).
+DROP FUNCTION IF EXISTS public.activate_open_sales_orders_snapshot(text, uuid, integer);
+DROP FUNCTION IF EXISTS public.activate_zfisales_snapshot(text, uuid, integer, date, date);
+DROP FUNCTION IF EXISTS public.delete_month_wise_upload(integer, integer);
+DROP FUNCTION IF EXISTS public.month_wise_stock_kpis();
+DROP FUNCTION IF EXISTS public.month_wise_stock_materials(text[]);
+DROP FUNCTION IF EXISTS public.month_wise_stock_summary();
+DROP FUNCTION IF EXISTS public.month_wise_stock_totals();
+DROP FUNCTION IF EXISTS public.month_wise_upload_page(integer, integer, text, integer, integer);
+DROP FUNCTION IF EXISTS public.mws_access();
+DROP FUNCTION IF EXISTS public.mwu_can_manage();
+DROP FUNCTION IF EXISTS public.net_sales_summary();
+DROP FUNCTION IF EXISTS public.net_sales_summary(date, date);
+DROP FUNCTION IF EXISTS public.purchase_register_fiscal_years();
+DROP FUNCTION IF EXISTS public.purchase_register_kpis(date, date);
+DROP TABLE IF EXISTS public.daily_production, public.month_wise_upload, public.open_purchase_order, public.open_sales_orders, public.order_book, public.purchase_orders, public.purchase_register, public.sales_in_transit, public.sales_register, public.sales_revenue_targets, public.zcash_flow, public.zfisales_detail, public.ztbn CASCADE;
+DROP FUNCTION IF EXISTS public.mws_num(text);
+DELETE FROM public.sap_endpoints WHERE name <> 'Vendor_Ageing' AND name NOT ILIKE '%current%stock%' AND name NOT ILIKE '%dropdown%';
+DELETE FROM public.role_screens WHERE screen_key ~ '^(sd\.|mm\.|pp\.|module\.(sd|mm|pp)$|fi\.(tbn|cash-flow)|inv\.month-wise-stock|tables\.month-wise-upload|reports\.sales-analytics)';
+DELETE FROM public.tiles WHERE screen_key ~ '^(sd\.|mm\.|pp\.|fi\.(tbn|cash-flow)|inv\.month-wise-stock|tables\.month-wise-upload)';

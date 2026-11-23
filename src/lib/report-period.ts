@@ -1,4 +1,8 @@
-import { currentFiscalYearRange } from "./sd-live";
+function currentFiscalYearRange(date: Date) {
+  const fy = date.getMonth() >= 3 ? date.getFullYear() : date.getFullYear() - 1;
+  const p = (n: number) => String(n).padStart(2, "0");
+  return { fiscalYear: String(fy), from: `${fy}-04-01`, to: `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}` };
+}
 
 /** Share India-local April–March bounds between report opening and launchpad. */
 export function currentReportPeriod(now = new Date()) {

@@ -9,18 +9,11 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep ZTBN source-aligned, paginated and horizontally scrollable; disable scheduled sync pending its dedicated SAP mapper.
-- Read TBN exclusively from public.ztbn; refresh through one cleaned-up Realtime subscription with periodic fallback.
 - Capture PDFs by visual rows with repeated headers/numbered footers; preserve screen colors and independent PDF geometry. Exclude sync metadata and unmount the Open Orders screen header during capture.
 - Default Sales and Net Sales launchpad to the current April–March FY; explicit shared/URL dates override reports. Name every PDF/Excel/CSV/PNG download "<Screen name>_DD-MM-YYYY" (IST) via datedFileName.
-- Activate validated ZFISALES snapshots under an advisory lock by Posting Date range; never replace active rows on empty or failed staging.
-- Keep Sales/Open Orders datasets stable across navigation; refresh only explicitly.
 - Store multiple sync times in backward-compatible IST:HH:mm,... expressions.
 - Give coming-soon screens stable routes and permission keys through a shared placeholder.
 - Derive Model Wise Type from filtered product_type; retain full ranking on screen and export Top 10.
-- Manual/test Open Orders requests use saved fkdat; scheduled requests use today's local date.
-- Activate Open Orders atomically by VBELN + POSNR; retain typed fields and complete raw rows. Read every active paginated row.
-- Use a pure active date-mode boundary helper; Open Orders launchpad reads all active rows without date/document-type restrictions to cover the complete snapshot.
 - Align filters through desktop-only placement and equal label tracks. Bulk selection is opt-in; null means unrestricted and [] means none.
 - Use pure source-backed filter/code-description helpers; keep customer identity by sold-to code. Map S_VTWEG before VTWEG; reuse stored channel/sales_type and industry_description for labels.
 - Share pure detailed-table status/search/date-sort helpers with pagination and Excel; table-only controls must not affect dashboard totals.
@@ -36,20 +29,10 @@
 
 - Switch monetary-source versions in report query keys when the source changes so cached pre-change values cannot survive navigation.
 - Backfill new typed SAP monetary columns from raw rows with the mapper's numeric normalization before switching reads; retain earlier columns independently to support additive deployment.
-- Cash Flow reads all public.zcash_flow rows through one stable query (explicit Refresh) mapped by pure helpers in cash-flow.ts, so filters, charts, totals and exports share one dataset; date-based views stay empty until SAP supplies dates.
-- Upsert ZCASH_FLOW rows on Profit Center + Plant + GL Code without snapshots, since SAP returns current balances per account.
 - Auth state changes invalidate queries only when the signed-in user id changes (sign-out clears cache), because Supabase re-emits SIGNED_IN on tab focus. The Cash Flow launchpad card shares the Cash Flow screen query so both change only on explicit Refresh/Sync.
 - User Management dropdown masters (plants, profit centers) upsert into public.sap_user_dropdown_masters on category + code without snapshots, since SAP returns the full current master list.
-- Order Book (ZORDERBOOK) rows upsert into public.order_book on VBELN + POSNR without snapshots, with every SAP response field typed plus raw; ERDAT_F/ERDAT_T follow the endpoint's date-window preset, because SAP returns order lines by created date.
-- Sales In Transit (Z_SIT) rows upsert into public.sales_in_transit on VBELN + POSNR and lines absent from the latest successful SAP response (including an empty one) are deleted, since SAP returns the current in-transit set; every SAP field typed plus raw; FKDAT_F/FKDAT_T follow the endpoint's date window and an empty FKDAT_T is omitted, because SAP returns billing lines by billing date.
 - SAP API Settings builds request fields from the pasted payload (`//` lines = optional keys stripped before sending) via pure helpers in payload-fields.ts, so new APIs need no bespoke form.
-- Sales Register (ZVF05) rows upsert into public.sales_register on VBELN + POSNR without snapshots, every SAP field typed plus raw; SAP requires MODE (scheduled DAILY, manual ONETIME), because SAP rejects requests without it.
-- Purchase Register (ZPUREGST) rows upsert into public.purchase_register on BELNR + BUZEI + MBLNR + ZEILE without snapshots, every SAP field typed plus raw; BUDAT_F/BUDAT_T follow the endpoint's date window, because SAP returns purchase lines by posting date.
-- Open Purchase Orders (ZOPENPO) rows upsert into public.open_purchase_order on EBELN + EBELP; after a successful non-empty reply, lines inside the returned PO-date span not refreshed by that run are deleted, because SAP lists only still-open lines. DOCUMENT_DATE.FROM_DATE/TO_DATE follow the endpoint's date window.
-- ZME2N Purchase Orders rows upsert into public.purchase_orders on PO + PO_ITEM; after a successful non-empty reply, lines inside the returned PO-date span not refreshed by that run are deleted (SAP-removed/cancelled lines); every SAP field typed plus raw; ₹ Cr totals count INR lines only, because SAP returns document-currency values.
-- Month Wise Stock reads database-summed rows via the month_wise_stock_summary RPC through one stable query (explicit Refresh), loading full public.month_wise_upload rows per month only for the detailed table/Excel, mapping ValCl→Valuation Short Name (tiles/types) and Profit Centre→ZPC GROUP groups in pure month-wise-stock-map.ts; tiles/cards sum every month in the selected range (All = all months), per user request.
-- Month Wise Stock totals come from SECURITY DEFINER RPCs over generated typed columns (val_class, plant, profit_centre, material, cb_qty, cb_val) that check access once per call, because per-row JSON parsing and RLS calls timed out on large uploads.
-- Daily Production Report (ZDPR) rows upsert into public.daily_production on MBLNR + MJAHR + ZEILE; after a successful non-empty reply, lines inside the returned posting-date span not refreshed are deleted; FROMDT/TODT (YYYY-MM-DD) follow the endpoint's date window, because SAP returns goods movements by posting date.
 
 - Import the shared logo CDN pointer in portal and PDF headers, preserving its original colors; one asset keeps branding consistent across screens.
 - Vendor Ageing (ZFI_VAG) inserts full snapshots into public.vendor_ageing and deletes older synced_at rows only after a successful non-empty insert, because SAP returns all open items for the key date with no unique line key; S_KDATE defaults to today and exactly one of R1/R2/R3 (Due/Posting/GRN basis) is X.
+- Unmapped SAP endpoints fail with "No storage is set up" instead of defaulting to a report table, because the retired sales/purchase/stock tables were removed.

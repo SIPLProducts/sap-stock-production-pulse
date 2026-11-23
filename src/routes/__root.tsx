@@ -15,7 +15,6 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/components/confirm-dialog";
-import { isStableSalesQuery } from "@/lib/stable-sales-query";
 import { ThemeProvider } from "@/components/theme-provider";
 
 function NotFoundComponent() {
@@ -162,7 +161,7 @@ function RootComponent() {
       lastUserId = userId;
       router.invalidate();
       queryClient.invalidateQueries({
-        predicate: (query) => switchedUser || !isStableSalesQuery(query.queryKey),
+        predicate: () => switchedUser,
       });
     });
     return () => data.subscription.unsubscribe();

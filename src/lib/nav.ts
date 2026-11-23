@@ -1,6 +1,5 @@
 export type NavPath =
   | "/launchpad"
-  | "/reports/sales-analytics"
   | "/admin/users"
   | "/admin/roles"
   | "/admin/permissions"
@@ -15,7 +14,6 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { to: "/launchpad", label: "Home", screen: "launchpad" },
-  { to: "/reports/sales-analytics", label: "Sales Analytics", screen: "reports.sales-analytics" },
 ];
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [

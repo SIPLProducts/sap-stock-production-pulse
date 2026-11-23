@@ -13,43 +13,22 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedLaunchpadRouteImport } from './routes/_authenticated/launchpad'
-import { Route as AuthenticatedManagementDashboardRouteImport } from './routes/_authenticated/management-dashboard'
 import { Route as AuthenticatedAdminPermissionsRouteImport } from './routes/_authenticated/admin/permissions'
 import { Route as AuthenticatedAdminRolesRouteImport } from './routes/_authenticated/admin/roles'
 import { Route as AuthenticatedAdminSapApiRouteImport } from './routes/_authenticated/admin/sap-api'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
-import { Route as AuthenticatedReportsSalesAnalyticsRouteImport } from './routes/_authenticated/reports/sales-analytics'
 import { Route as AuthenticatedTablesIndexRouteImport } from './routes/_authenticated/tables/index'
 import { Route as AuthenticatedTablesTableKeyRouteImport } from './routes/_authenticated/tables/$tableKey'
-import { Route as AuthenticatedReportsFiCashFlowRouteImport } from './routes/_authenticated/reports/fi/cash-flow'
-import { Route as AuthenticatedReportsFiTbnRouteRouteImport } from './routes/_authenticated/reports/fi/tbn/route'
 import { Route as AuthenticatedReportsFiVendorAgeingRouteImport } from './routes/_authenticated/reports/fi/vendor-ageing'
 import { Route as AuthenticatedReportsFiZfbl1nRouteImport } from './routes/_authenticated/reports/fi/zfbl1n'
 import { Route as AuthenticatedReportsInvCurrentStockRouteImport } from './routes/_authenticated/reports/inv/current-stock'
 import { Route as AuthenticatedReportsInvInventoryAgingRouteImport } from './routes/_authenticated/reports/inv/inventory-aging'
-import { Route as AuthenticatedReportsInvMonthWiseStockRouteImport } from './routes/_authenticated/reports/inv/month-wise-stock'
-import { Route as AuthenticatedReportsMmOpenPurchaseOrdersRouteImport } from './routes/_authenticated/reports/mm/open-purchase-orders'
-import { Route as AuthenticatedReportsMmPurchaseOrdersRouteImport } from './routes/_authenticated/reports/mm/purchase-orders'
-import { Route as AuthenticatedReportsMmPurchaseRegisterRouteImport } from './routes/_authenticated/reports/mm/purchase-register'
 import { Route as AuthenticatedReportsModuleModuleRouteImport } from './routes/_authenticated/reports/module.$module'
-import { Route as AuthenticatedReportsPpDailyProductionReportRouteImport } from './routes/_authenticated/reports/pp/daily-production-report'
-import { Route as AuthenticatedReportsSdDispatchesRouteImport } from './routes/_authenticated/reports/sd/dispatches'
-import { Route as AuthenticatedReportsSdDrilldownRouteImport } from './routes/_authenticated/reports/sd/drilldown'
-import { Route as AuthenticatedReportsSdFinanceGstRouteImport } from './routes/_authenticated/reports/sd/finance-gst'
-import { Route as AuthenticatedReportsSdKpiRouteImport } from './routes/_authenticated/reports/sd/kpi'
-import { Route as AuthenticatedReportsSdOpenSalesOrdersRouteImport } from './routes/_authenticated/reports/sd/open-sales-orders'
-import { Route as AuthenticatedReportsSdOrderBookRouteImport } from './routes/_authenticated/reports/sd/order-book'
-import { Route as AuthenticatedReportsSdRegisterRouteImport } from './routes/_authenticated/reports/sd/register'
-import { Route as AuthenticatedReportsSdSitRouteImport } from './routes/_authenticated/reports/sd/sit'
-import { Route as AuthenticatedReportsTablesMonthWiseUploadRouteImport } from './routes/_authenticated/reports/tables/month-wise-upload'
 import { Route as AuthenticatedReportsTablesSapMasterRouteImport } from './routes/_authenticated/reports/tables/sap-master'
 import { Route as AuthenticatedReportsTablesValuationSubgroupRouteImport } from './routes/_authenticated/reports/tables/valuation-subgroup'
 import { Route as AuthenticatedReportsTablesZpcGroupRouteImport } from './routes/_authenticated/reports/tables/zpc-group'
 import { Route as AuthenticatedReportsTablesZrmmatRouteImport } from './routes/_authenticated/reports/tables/zrmmat'
-import { Route as AuthenticatedReportsFiTbnIndexRouteImport } from './routes/_authenticated/reports/fi/tbn/index'
-import { Route as AuthenticatedReportsFiTbnTableRouteImport } from './routes/_authenticated/reports/fi/tbn/table'
 import { Route as ApiPublicSapPullZfisalesRouteImport } from './routes/api/public/sap/pull/zfisales'
-import { Route as ApiPublicSapSyncZfisalesRouteImport } from './routes/api/public/sap/sync/zfisales'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,12 +49,6 @@ const AuthenticatedLaunchpadRoute = AuthenticatedLaunchpadRouteImport.update({
   path: '/launchpad',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedManagementDashboardRoute =
-  AuthenticatedManagementDashboardRouteImport.update({
-    id: '/management-dashboard',
-    path: '/management-dashboard',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminPermissionsRoute =
   AuthenticatedAdminPermissionsRouteImport.update({
     id: '/admin/permissions',
@@ -98,12 +71,6 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedReportsSalesAnalyticsRoute =
-  AuthenticatedReportsSalesAnalyticsRouteImport.update({
-    id: '/reports/sales-analytics',
-    path: '/reports/sales-analytics',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedTablesIndexRoute =
   AuthenticatedTablesIndexRouteImport.update({
     id: '/tables/',
@@ -114,18 +81,6 @@ const AuthenticatedTablesTableKeyRoute =
   AuthenticatedTablesTableKeyRouteImport.update({
     id: '/tables/$tableKey',
     path: '/tables/$tableKey',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsFiCashFlowRoute =
-  AuthenticatedReportsFiCashFlowRouteImport.update({
-    id: '/reports/fi/cash-flow',
-    path: '/reports/fi/cash-flow',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsFiTbnRouteRoute =
-  AuthenticatedReportsFiTbnRouteRouteImport.update({
-    id: '/reports/fi/tbn',
-    path: '/reports/fi/tbn',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedReportsFiVendorAgeingRoute =
@@ -152,94 +107,10 @@ const AuthenticatedReportsInvInventoryAgingRoute =
     path: '/reports/inv/inventory-aging',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedReportsInvMonthWiseStockRoute =
-  AuthenticatedReportsInvMonthWiseStockRouteImport.update({
-    id: '/reports/inv/month-wise-stock',
-    path: '/reports/inv/month-wise-stock',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsMmOpenPurchaseOrdersRoute =
-  AuthenticatedReportsMmOpenPurchaseOrdersRouteImport.update({
-    id: '/reports/mm/open-purchase-orders',
-    path: '/reports/mm/open-purchase-orders',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsMmPurchaseOrdersRoute =
-  AuthenticatedReportsMmPurchaseOrdersRouteImport.update({
-    id: '/reports/mm/purchase-orders',
-    path: '/reports/mm/purchase-orders',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsMmPurchaseRegisterRoute =
-  AuthenticatedReportsMmPurchaseRegisterRouteImport.update({
-    id: '/reports/mm/purchase-register',
-    path: '/reports/mm/purchase-register',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedReportsModuleModuleRoute =
   AuthenticatedReportsModuleModuleRouteImport.update({
     id: '/reports/module/$module',
     path: '/reports/module/$module',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsPpDailyProductionReportRoute =
-  AuthenticatedReportsPpDailyProductionReportRouteImport.update({
-    id: '/reports/pp/daily-production-report',
-    path: '/reports/pp/daily-production-report',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdDispatchesRoute =
-  AuthenticatedReportsSdDispatchesRouteImport.update({
-    id: '/reports/sd/dispatches',
-    path: '/reports/sd/dispatches',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdDrilldownRoute =
-  AuthenticatedReportsSdDrilldownRouteImport.update({
-    id: '/reports/sd/drilldown',
-    path: '/reports/sd/drilldown',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdFinanceGstRoute =
-  AuthenticatedReportsSdFinanceGstRouteImport.update({
-    id: '/reports/sd/finance-gst',
-    path: '/reports/sd/finance-gst',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdKpiRoute =
-  AuthenticatedReportsSdKpiRouteImport.update({
-    id: '/reports/sd/kpi',
-    path: '/reports/sd/kpi',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdOpenSalesOrdersRoute =
-  AuthenticatedReportsSdOpenSalesOrdersRouteImport.update({
-    id: '/reports/sd/open-sales-orders',
-    path: '/reports/sd/open-sales-orders',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdOrderBookRoute =
-  AuthenticatedReportsSdOrderBookRouteImport.update({
-    id: '/reports/sd/order-book',
-    path: '/reports/sd/order-book',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdRegisterRoute =
-  AuthenticatedReportsSdRegisterRouteImport.update({
-    id: '/reports/sd/register',
-    path: '/reports/sd/register',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsSdSitRoute =
-  AuthenticatedReportsSdSitRouteImport.update({
-    id: '/reports/sd/sit',
-    path: '/reports/sd/sit',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsTablesMonthWiseUploadRoute =
-  AuthenticatedReportsTablesMonthWiseUploadRouteImport.update({
-    id: '/reports/tables/month-wise-upload',
-    path: '/reports/tables/month-wise-upload',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedReportsTablesSapMasterRoute =
@@ -266,28 +137,10 @@ const AuthenticatedReportsTablesZrmmatRoute =
     path: '/reports/tables/zrmmat',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedReportsFiTbnIndexRoute =
-  AuthenticatedReportsFiTbnIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedReportsFiTbnRouteRoute,
-  } as any)
-const AuthenticatedReportsFiTbnTableRoute =
-  AuthenticatedReportsFiTbnTableRouteImport.update({
-    id: '/table',
-    path: '/table',
-    getParentRoute: () => AuthenticatedReportsFiTbnRouteRoute,
-  } as any)
 const ApiPublicSapPullZfisalesRoute =
   ApiPublicSapPullZfisalesRouteImport.update({
     id: '/api/public/sap/pull/zfisales',
     path: '/api/public/sap/pull/zfisales',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicSapSyncZfisalesRoute =
-  ApiPublicSapSyncZfisalesRouteImport.update({
-    id: '/api/public/sap/sync/zfisales',
-    path: '/api/public/sap/sync/zfisales',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -295,84 +148,43 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/launchpad': typeof AuthenticatedLaunchpadRoute
-  '/management-dashboard': typeof AuthenticatedManagementDashboardRoute
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/sap-api': typeof AuthenticatedAdminSapApiRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/reports/sales-analytics': typeof AuthenticatedReportsSalesAnalyticsRoute
   '/tables/$tableKey': typeof AuthenticatedTablesTableKeyRoute
   '/tables/': typeof AuthenticatedTablesIndexRoute
-  '/reports/fi/tbn': typeof AuthenticatedReportsFiTbnRouteRouteWithChildren
-  '/reports/fi/cash-flow': typeof AuthenticatedReportsFiCashFlowRoute
   '/reports/fi/vendor-ageing': typeof AuthenticatedReportsFiVendorAgeingRoute
   '/reports/fi/zfbl1n': typeof AuthenticatedReportsFiZfbl1nRoute
   '/reports/inv/current-stock': typeof AuthenticatedReportsInvCurrentStockRoute
   '/reports/inv/inventory-aging': typeof AuthenticatedReportsInvInventoryAgingRoute
-  '/reports/inv/month-wise-stock': typeof AuthenticatedReportsInvMonthWiseStockRoute
-  '/reports/mm/open-purchase-orders': typeof AuthenticatedReportsMmOpenPurchaseOrdersRoute
-  '/reports/mm/purchase-orders': typeof AuthenticatedReportsMmPurchaseOrdersRoute
-  '/reports/mm/purchase-register': typeof AuthenticatedReportsMmPurchaseRegisterRoute
   '/reports/module/$module': typeof AuthenticatedReportsModuleModuleRoute
-  '/reports/pp/daily-production-report': typeof AuthenticatedReportsPpDailyProductionReportRoute
-  '/reports/sd/dispatches': typeof AuthenticatedReportsSdDispatchesRoute
-  '/reports/sd/drilldown': typeof AuthenticatedReportsSdDrilldownRoute
-  '/reports/sd/finance-gst': typeof AuthenticatedReportsSdFinanceGstRoute
-  '/reports/sd/kpi': typeof AuthenticatedReportsSdKpiRoute
-  '/reports/sd/open-sales-orders': typeof AuthenticatedReportsSdOpenSalesOrdersRoute
-  '/reports/sd/order-book': typeof AuthenticatedReportsSdOrderBookRoute
-  '/reports/sd/register': typeof AuthenticatedReportsSdRegisterRoute
-  '/reports/sd/sit': typeof AuthenticatedReportsSdSitRoute
-  '/reports/tables/month-wise-upload': typeof AuthenticatedReportsTablesMonthWiseUploadRoute
   '/reports/tables/sap-master': typeof AuthenticatedReportsTablesSapMasterRoute
   '/reports/tables/valuation-subgroup': typeof AuthenticatedReportsTablesValuationSubgroupRoute
   '/reports/tables/zpc-group': typeof AuthenticatedReportsTablesZpcGroupRoute
   '/reports/tables/zrmmat': typeof AuthenticatedReportsTablesZrmmatRoute
-  '/reports/fi/tbn/table': typeof AuthenticatedReportsFiTbnTableRoute
   '/api/public/sap/pull/zfisales': typeof ApiPublicSapPullZfisalesRoute
-  '/api/public/sap/sync/zfisales': typeof ApiPublicSapSyncZfisalesRoute
-  '/reports/fi/tbn/': typeof AuthenticatedReportsFiTbnIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/launchpad': typeof AuthenticatedLaunchpadRoute
-  '/management-dashboard': typeof AuthenticatedManagementDashboardRoute
   '/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/sap-api': typeof AuthenticatedAdminSapApiRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/reports/sales-analytics': typeof AuthenticatedReportsSalesAnalyticsRoute
   '/tables/$tableKey': typeof AuthenticatedTablesTableKeyRoute
   '/tables': typeof AuthenticatedTablesIndexRoute
-  '/reports/fi/cash-flow': typeof AuthenticatedReportsFiCashFlowRoute
   '/reports/fi/vendor-ageing': typeof AuthenticatedReportsFiVendorAgeingRoute
   '/reports/fi/zfbl1n': typeof AuthenticatedReportsFiZfbl1nRoute
   '/reports/inv/current-stock': typeof AuthenticatedReportsInvCurrentStockRoute
   '/reports/inv/inventory-aging': typeof AuthenticatedReportsInvInventoryAgingRoute
-  '/reports/inv/month-wise-stock': typeof AuthenticatedReportsInvMonthWiseStockRoute
-  '/reports/mm/open-purchase-orders': typeof AuthenticatedReportsMmOpenPurchaseOrdersRoute
-  '/reports/mm/purchase-orders': typeof AuthenticatedReportsMmPurchaseOrdersRoute
-  '/reports/mm/purchase-register': typeof AuthenticatedReportsMmPurchaseRegisterRoute
   '/reports/module/$module': typeof AuthenticatedReportsModuleModuleRoute
-  '/reports/pp/daily-production-report': typeof AuthenticatedReportsPpDailyProductionReportRoute
-  '/reports/sd/dispatches': typeof AuthenticatedReportsSdDispatchesRoute
-  '/reports/sd/drilldown': typeof AuthenticatedReportsSdDrilldownRoute
-  '/reports/sd/finance-gst': typeof AuthenticatedReportsSdFinanceGstRoute
-  '/reports/sd/kpi': typeof AuthenticatedReportsSdKpiRoute
-  '/reports/sd/open-sales-orders': typeof AuthenticatedReportsSdOpenSalesOrdersRoute
-  '/reports/sd/order-book': typeof AuthenticatedReportsSdOrderBookRoute
-  '/reports/sd/register': typeof AuthenticatedReportsSdRegisterRoute
-  '/reports/sd/sit': typeof AuthenticatedReportsSdSitRoute
-  '/reports/tables/month-wise-upload': typeof AuthenticatedReportsTablesMonthWiseUploadRoute
   '/reports/tables/sap-master': typeof AuthenticatedReportsTablesSapMasterRoute
   '/reports/tables/valuation-subgroup': typeof AuthenticatedReportsTablesValuationSubgroupRoute
   '/reports/tables/zpc-group': typeof AuthenticatedReportsTablesZpcGroupRoute
   '/reports/tables/zrmmat': typeof AuthenticatedReportsTablesZrmmatRoute
-  '/reports/fi/tbn/table': typeof AuthenticatedReportsFiTbnTableRoute
   '/api/public/sap/pull/zfisales': typeof ApiPublicSapPullZfisalesRoute
-  '/api/public/sap/sync/zfisales': typeof ApiPublicSapSyncZfisalesRoute
-  '/reports/fi/tbn': typeof AuthenticatedReportsFiTbnIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -380,43 +192,22 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/launchpad': typeof AuthenticatedLaunchpadRoute
-  '/_authenticated/management-dashboard': typeof AuthenticatedManagementDashboardRoute
   '/_authenticated/admin/permissions': typeof AuthenticatedAdminPermissionsRoute
   '/_authenticated/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/_authenticated/admin/sap-api': typeof AuthenticatedAdminSapApiRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/_authenticated/reports/sales-analytics': typeof AuthenticatedReportsSalesAnalyticsRoute
   '/_authenticated/tables/$tableKey': typeof AuthenticatedTablesTableKeyRoute
   '/_authenticated/tables/': typeof AuthenticatedTablesIndexRoute
-  '/_authenticated/reports/fi/tbn': typeof AuthenticatedReportsFiTbnRouteRouteWithChildren
-  '/_authenticated/reports/fi/cash-flow': typeof AuthenticatedReportsFiCashFlowRoute
   '/_authenticated/reports/fi/vendor-ageing': typeof AuthenticatedReportsFiVendorAgeingRoute
   '/_authenticated/reports/fi/zfbl1n': typeof AuthenticatedReportsFiZfbl1nRoute
   '/_authenticated/reports/inv/current-stock': typeof AuthenticatedReportsInvCurrentStockRoute
   '/_authenticated/reports/inv/inventory-aging': typeof AuthenticatedReportsInvInventoryAgingRoute
-  '/_authenticated/reports/inv/month-wise-stock': typeof AuthenticatedReportsInvMonthWiseStockRoute
-  '/_authenticated/reports/mm/open-purchase-orders': typeof AuthenticatedReportsMmOpenPurchaseOrdersRoute
-  '/_authenticated/reports/mm/purchase-orders': typeof AuthenticatedReportsMmPurchaseOrdersRoute
-  '/_authenticated/reports/mm/purchase-register': typeof AuthenticatedReportsMmPurchaseRegisterRoute
   '/_authenticated/reports/module/$module': typeof AuthenticatedReportsModuleModuleRoute
-  '/_authenticated/reports/pp/daily-production-report': typeof AuthenticatedReportsPpDailyProductionReportRoute
-  '/_authenticated/reports/sd/dispatches': typeof AuthenticatedReportsSdDispatchesRoute
-  '/_authenticated/reports/sd/drilldown': typeof AuthenticatedReportsSdDrilldownRoute
-  '/_authenticated/reports/sd/finance-gst': typeof AuthenticatedReportsSdFinanceGstRoute
-  '/_authenticated/reports/sd/kpi': typeof AuthenticatedReportsSdKpiRoute
-  '/_authenticated/reports/sd/open-sales-orders': typeof AuthenticatedReportsSdOpenSalesOrdersRoute
-  '/_authenticated/reports/sd/order-book': typeof AuthenticatedReportsSdOrderBookRoute
-  '/_authenticated/reports/sd/register': typeof AuthenticatedReportsSdRegisterRoute
-  '/_authenticated/reports/sd/sit': typeof AuthenticatedReportsSdSitRoute
-  '/_authenticated/reports/tables/month-wise-upload': typeof AuthenticatedReportsTablesMonthWiseUploadRoute
   '/_authenticated/reports/tables/sap-master': typeof AuthenticatedReportsTablesSapMasterRoute
   '/_authenticated/reports/tables/valuation-subgroup': typeof AuthenticatedReportsTablesValuationSubgroupRoute
   '/_authenticated/reports/tables/zpc-group': typeof AuthenticatedReportsTablesZpcGroupRoute
   '/_authenticated/reports/tables/zrmmat': typeof AuthenticatedReportsTablesZrmmatRoute
-  '/_authenticated/reports/fi/tbn/table': typeof AuthenticatedReportsFiTbnTableRoute
   '/api/public/sap/pull/zfisales': typeof ApiPublicSapPullZfisalesRoute
-  '/api/public/sap/sync/zfisales': typeof ApiPublicSapSyncZfisalesRoute
-  '/_authenticated/reports/fi/tbn/': typeof AuthenticatedReportsFiTbnIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -424,127 +215,65 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/launchpad'
-    | '/management-dashboard'
     | '/admin/permissions'
     | '/admin/roles'
     | '/admin/sap-api'
     | '/admin/users'
-    | '/reports/sales-analytics'
     | '/tables/$tableKey'
     | '/tables/'
-    | '/reports/fi/tbn'
-    | '/reports/fi/cash-flow'
     | '/reports/fi/vendor-ageing'
     | '/reports/fi/zfbl1n'
     | '/reports/inv/current-stock'
     | '/reports/inv/inventory-aging'
-    | '/reports/inv/month-wise-stock'
-    | '/reports/mm/open-purchase-orders'
-    | '/reports/mm/purchase-orders'
-    | '/reports/mm/purchase-register'
     | '/reports/module/$module'
-    | '/reports/pp/daily-production-report'
-    | '/reports/sd/dispatches'
-    | '/reports/sd/drilldown'
-    | '/reports/sd/finance-gst'
-    | '/reports/sd/kpi'
-    | '/reports/sd/open-sales-orders'
-    | '/reports/sd/order-book'
-    | '/reports/sd/register'
-    | '/reports/sd/sit'
-    | '/reports/tables/month-wise-upload'
     | '/reports/tables/sap-master'
     | '/reports/tables/valuation-subgroup'
     | '/reports/tables/zpc-group'
     | '/reports/tables/zrmmat'
-    | '/reports/fi/tbn/table'
     | '/api/public/sap/pull/zfisales'
-    | '/api/public/sap/sync/zfisales'
-    | '/reports/fi/tbn/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/launchpad'
-    | '/management-dashboard'
     | '/admin/permissions'
     | '/admin/roles'
     | '/admin/sap-api'
     | '/admin/users'
-    | '/reports/sales-analytics'
     | '/tables/$tableKey'
     | '/tables'
-    | '/reports/fi/cash-flow'
     | '/reports/fi/vendor-ageing'
     | '/reports/fi/zfbl1n'
     | '/reports/inv/current-stock'
     | '/reports/inv/inventory-aging'
-    | '/reports/inv/month-wise-stock'
-    | '/reports/mm/open-purchase-orders'
-    | '/reports/mm/purchase-orders'
-    | '/reports/mm/purchase-register'
     | '/reports/module/$module'
-    | '/reports/pp/daily-production-report'
-    | '/reports/sd/dispatches'
-    | '/reports/sd/drilldown'
-    | '/reports/sd/finance-gst'
-    | '/reports/sd/kpi'
-    | '/reports/sd/open-sales-orders'
-    | '/reports/sd/order-book'
-    | '/reports/sd/register'
-    | '/reports/sd/sit'
-    | '/reports/tables/month-wise-upload'
     | '/reports/tables/sap-master'
     | '/reports/tables/valuation-subgroup'
     | '/reports/tables/zpc-group'
     | '/reports/tables/zrmmat'
-    | '/reports/fi/tbn/table'
     | '/api/public/sap/pull/zfisales'
-    | '/api/public/sap/sync/zfisales'
-    | '/reports/fi/tbn'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/launchpad'
-    | '/_authenticated/management-dashboard'
     | '/_authenticated/admin/permissions'
     | '/_authenticated/admin/roles'
     | '/_authenticated/admin/sap-api'
     | '/_authenticated/admin/users'
-    | '/_authenticated/reports/sales-analytics'
     | '/_authenticated/tables/$tableKey'
     | '/_authenticated/tables/'
-    | '/_authenticated/reports/fi/tbn'
-    | '/_authenticated/reports/fi/cash-flow'
     | '/_authenticated/reports/fi/vendor-ageing'
     | '/_authenticated/reports/fi/zfbl1n'
     | '/_authenticated/reports/inv/current-stock'
     | '/_authenticated/reports/inv/inventory-aging'
-    | '/_authenticated/reports/inv/month-wise-stock'
-    | '/_authenticated/reports/mm/open-purchase-orders'
-    | '/_authenticated/reports/mm/purchase-orders'
-    | '/_authenticated/reports/mm/purchase-register'
     | '/_authenticated/reports/module/$module'
-    | '/_authenticated/reports/pp/daily-production-report'
-    | '/_authenticated/reports/sd/dispatches'
-    | '/_authenticated/reports/sd/drilldown'
-    | '/_authenticated/reports/sd/finance-gst'
-    | '/_authenticated/reports/sd/kpi'
-    | '/_authenticated/reports/sd/open-sales-orders'
-    | '/_authenticated/reports/sd/order-book'
-    | '/_authenticated/reports/sd/register'
-    | '/_authenticated/reports/sd/sit'
-    | '/_authenticated/reports/tables/month-wise-upload'
     | '/_authenticated/reports/tables/sap-master'
     | '/_authenticated/reports/tables/valuation-subgroup'
     | '/_authenticated/reports/tables/zpc-group'
     | '/_authenticated/reports/tables/zrmmat'
-    | '/_authenticated/reports/fi/tbn/table'
     | '/api/public/sap/pull/zfisales'
-    | '/api/public/sap/sync/zfisales'
-    | '/_authenticated/reports/fi/tbn/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -552,7 +281,6 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPublicSapPullZfisalesRoute: typeof ApiPublicSapPullZfisalesRoute
-  ApiPublicSapSyncZfisalesRoute: typeof ApiPublicSapSyncZfisalesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -585,13 +313,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLaunchpadRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/management-dashboard': {
-      id: '/_authenticated/management-dashboard'
-      path: '/management-dashboard'
-      fullPath: '/management-dashboard'
-      preLoaderRoute: typeof AuthenticatedManagementDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin/permissions': {
       id: '/_authenticated/admin/permissions'
       path: '/admin/permissions'
@@ -620,13 +341,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/reports/sales-analytics': {
-      id: '/_authenticated/reports/sales-analytics'
-      path: '/reports/sales-analytics'
-      fullPath: '/reports/sales-analytics'
-      preLoaderRoute: typeof AuthenticatedReportsSalesAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/tables/': {
       id: '/_authenticated/tables/'
       path: '/tables'
@@ -639,20 +353,6 @@ declare module '@tanstack/react-router' {
       path: '/tables/$tableKey'
       fullPath: '/tables/$tableKey'
       preLoaderRoute: typeof AuthenticatedTablesTableKeyRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/fi/cash-flow': {
-      id: '/_authenticated/reports/fi/cash-flow'
-      path: '/reports/fi/cash-flow'
-      fullPath: '/reports/fi/cash-flow'
-      preLoaderRoute: typeof AuthenticatedReportsFiCashFlowRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/fi/tbn': {
-      id: '/_authenticated/reports/fi/tbn'
-      path: '/reports/fi/tbn'
-      fullPath: '/reports/fi/tbn'
-      preLoaderRoute: typeof AuthenticatedReportsFiTbnRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reports/fi/vendor-ageing': {
@@ -683,109 +383,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsInvInventoryAgingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/reports/inv/month-wise-stock': {
-      id: '/_authenticated/reports/inv/month-wise-stock'
-      path: '/reports/inv/month-wise-stock'
-      fullPath: '/reports/inv/month-wise-stock'
-      preLoaderRoute: typeof AuthenticatedReportsInvMonthWiseStockRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/mm/open-purchase-orders': {
-      id: '/_authenticated/reports/mm/open-purchase-orders'
-      path: '/reports/mm/open-purchase-orders'
-      fullPath: '/reports/mm/open-purchase-orders'
-      preLoaderRoute: typeof AuthenticatedReportsMmOpenPurchaseOrdersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/mm/purchase-orders': {
-      id: '/_authenticated/reports/mm/purchase-orders'
-      path: '/reports/mm/purchase-orders'
-      fullPath: '/reports/mm/purchase-orders'
-      preLoaderRoute: typeof AuthenticatedReportsMmPurchaseOrdersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/mm/purchase-register': {
-      id: '/_authenticated/reports/mm/purchase-register'
-      path: '/reports/mm/purchase-register'
-      fullPath: '/reports/mm/purchase-register'
-      preLoaderRoute: typeof AuthenticatedReportsMmPurchaseRegisterRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/reports/module/$module': {
       id: '/_authenticated/reports/module/$module'
       path: '/reports/module/$module'
       fullPath: '/reports/module/$module'
       preLoaderRoute: typeof AuthenticatedReportsModuleModuleRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/pp/daily-production-report': {
-      id: '/_authenticated/reports/pp/daily-production-report'
-      path: '/reports/pp/daily-production-report'
-      fullPath: '/reports/pp/daily-production-report'
-      preLoaderRoute: typeof AuthenticatedReportsPpDailyProductionReportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/dispatches': {
-      id: '/_authenticated/reports/sd/dispatches'
-      path: '/reports/sd/dispatches'
-      fullPath: '/reports/sd/dispatches'
-      preLoaderRoute: typeof AuthenticatedReportsSdDispatchesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/drilldown': {
-      id: '/_authenticated/reports/sd/drilldown'
-      path: '/reports/sd/drilldown'
-      fullPath: '/reports/sd/drilldown'
-      preLoaderRoute: typeof AuthenticatedReportsSdDrilldownRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/finance-gst': {
-      id: '/_authenticated/reports/sd/finance-gst'
-      path: '/reports/sd/finance-gst'
-      fullPath: '/reports/sd/finance-gst'
-      preLoaderRoute: typeof AuthenticatedReportsSdFinanceGstRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/kpi': {
-      id: '/_authenticated/reports/sd/kpi'
-      path: '/reports/sd/kpi'
-      fullPath: '/reports/sd/kpi'
-      preLoaderRoute: typeof AuthenticatedReportsSdKpiRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/open-sales-orders': {
-      id: '/_authenticated/reports/sd/open-sales-orders'
-      path: '/reports/sd/open-sales-orders'
-      fullPath: '/reports/sd/open-sales-orders'
-      preLoaderRoute: typeof AuthenticatedReportsSdOpenSalesOrdersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/order-book': {
-      id: '/_authenticated/reports/sd/order-book'
-      path: '/reports/sd/order-book'
-      fullPath: '/reports/sd/order-book'
-      preLoaderRoute: typeof AuthenticatedReportsSdOrderBookRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/register': {
-      id: '/_authenticated/reports/sd/register'
-      path: '/reports/sd/register'
-      fullPath: '/reports/sd/register'
-      preLoaderRoute: typeof AuthenticatedReportsSdRegisterRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/sd/sit': {
-      id: '/_authenticated/reports/sd/sit'
-      path: '/reports/sd/sit'
-      fullPath: '/reports/sd/sit'
-      preLoaderRoute: typeof AuthenticatedReportsSdSitRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/tables/month-wise-upload': {
-      id: '/_authenticated/reports/tables/month-wise-upload'
-      path: '/reports/tables/month-wise-upload'
-      fullPath: '/reports/tables/month-wise-upload'
-      preLoaderRoute: typeof AuthenticatedReportsTablesMonthWiseUploadRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reports/tables/sap-master': {
@@ -816,20 +418,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsTablesZrmmatRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/reports/fi/tbn/': {
-      id: '/_authenticated/reports/fi/tbn/'
-      path: '/'
-      fullPath: '/reports/fi/tbn/'
-      preLoaderRoute: typeof AuthenticatedReportsFiTbnIndexRouteImport
-      parentRoute: typeof AuthenticatedReportsFiTbnRouteRoute
-    }
-    '/_authenticated/reports/fi/tbn/table': {
-      id: '/_authenticated/reports/fi/tbn/table'
-      path: '/table'
-      fullPath: '/reports/fi/tbn/table'
-      preLoaderRoute: typeof AuthenticatedReportsFiTbnTableRouteImport
-      parentRoute: typeof AuthenticatedReportsFiTbnRouteRoute
-    }
     '/api/public/sap/pull/zfisales': {
       id: '/api/public/sap/pull/zfisales'
       path: '/api/public/sap/pull/zfisales'
@@ -837,63 +425,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSapPullZfisalesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/sap/sync/zfisales': {
-      id: '/api/public/sap/sync/zfisales'
-      path: '/api/public/sap/sync/zfisales'
-      fullPath: '/api/public/sap/sync/zfisales'
-      preLoaderRoute: typeof ApiPublicSapSyncZfisalesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
-
-interface AuthenticatedReportsFiTbnRouteRouteChildren {
-  AuthenticatedReportsFiTbnTableRoute: typeof AuthenticatedReportsFiTbnTableRoute
-  AuthenticatedReportsFiTbnIndexRoute: typeof AuthenticatedReportsFiTbnIndexRoute
-}
-
-const AuthenticatedReportsFiTbnRouteRouteChildren: AuthenticatedReportsFiTbnRouteRouteChildren =
-  {
-    AuthenticatedReportsFiTbnTableRoute: AuthenticatedReportsFiTbnTableRoute,
-    AuthenticatedReportsFiTbnIndexRoute: AuthenticatedReportsFiTbnIndexRoute,
-  }
-
-const AuthenticatedReportsFiTbnRouteRouteWithChildren =
-  AuthenticatedReportsFiTbnRouteRoute._addFileChildren(
-    AuthenticatedReportsFiTbnRouteRouteChildren,
-  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedLaunchpadRoute: typeof AuthenticatedLaunchpadRoute
-  AuthenticatedManagementDashboardRoute: typeof AuthenticatedManagementDashboardRoute
   AuthenticatedAdminPermissionsRoute: typeof AuthenticatedAdminPermissionsRoute
   AuthenticatedAdminRolesRoute: typeof AuthenticatedAdminRolesRoute
   AuthenticatedAdminSapApiRoute: typeof AuthenticatedAdminSapApiRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
-  AuthenticatedReportsSalesAnalyticsRoute: typeof AuthenticatedReportsSalesAnalyticsRoute
   AuthenticatedTablesTableKeyRoute: typeof AuthenticatedTablesTableKeyRoute
   AuthenticatedTablesIndexRoute: typeof AuthenticatedTablesIndexRoute
-  AuthenticatedReportsFiTbnRouteRoute: typeof AuthenticatedReportsFiTbnRouteRouteWithChildren
-  AuthenticatedReportsFiCashFlowRoute: typeof AuthenticatedReportsFiCashFlowRoute
   AuthenticatedReportsFiVendorAgeingRoute: typeof AuthenticatedReportsFiVendorAgeingRoute
   AuthenticatedReportsFiZfbl1nRoute: typeof AuthenticatedReportsFiZfbl1nRoute
   AuthenticatedReportsInvCurrentStockRoute: typeof AuthenticatedReportsInvCurrentStockRoute
   AuthenticatedReportsInvInventoryAgingRoute: typeof AuthenticatedReportsInvInventoryAgingRoute
-  AuthenticatedReportsInvMonthWiseStockRoute: typeof AuthenticatedReportsInvMonthWiseStockRoute
-  AuthenticatedReportsMmOpenPurchaseOrdersRoute: typeof AuthenticatedReportsMmOpenPurchaseOrdersRoute
-  AuthenticatedReportsMmPurchaseOrdersRoute: typeof AuthenticatedReportsMmPurchaseOrdersRoute
-  AuthenticatedReportsMmPurchaseRegisterRoute: typeof AuthenticatedReportsMmPurchaseRegisterRoute
   AuthenticatedReportsModuleModuleRoute: typeof AuthenticatedReportsModuleModuleRoute
-  AuthenticatedReportsPpDailyProductionReportRoute: typeof AuthenticatedReportsPpDailyProductionReportRoute
-  AuthenticatedReportsSdDispatchesRoute: typeof AuthenticatedReportsSdDispatchesRoute
-  AuthenticatedReportsSdDrilldownRoute: typeof AuthenticatedReportsSdDrilldownRoute
-  AuthenticatedReportsSdFinanceGstRoute: typeof AuthenticatedReportsSdFinanceGstRoute
-  AuthenticatedReportsSdKpiRoute: typeof AuthenticatedReportsSdKpiRoute
-  AuthenticatedReportsSdOpenSalesOrdersRoute: typeof AuthenticatedReportsSdOpenSalesOrdersRoute
-  AuthenticatedReportsSdOrderBookRoute: typeof AuthenticatedReportsSdOrderBookRoute
-  AuthenticatedReportsSdRegisterRoute: typeof AuthenticatedReportsSdRegisterRoute
-  AuthenticatedReportsSdSitRoute: typeof AuthenticatedReportsSdSitRoute
-  AuthenticatedReportsTablesMonthWiseUploadRoute: typeof AuthenticatedReportsTablesMonthWiseUploadRoute
   AuthenticatedReportsTablesSapMasterRoute: typeof AuthenticatedReportsTablesSapMasterRoute
   AuthenticatedReportsTablesValuationSubgroupRoute: typeof AuthenticatedReportsTablesValuationSubgroupRoute
   AuthenticatedReportsTablesZpcGroupRoute: typeof AuthenticatedReportsTablesZpcGroupRoute
@@ -902,18 +449,12 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLaunchpadRoute: AuthenticatedLaunchpadRoute,
-  AuthenticatedManagementDashboardRoute: AuthenticatedManagementDashboardRoute,
   AuthenticatedAdminPermissionsRoute: AuthenticatedAdminPermissionsRoute,
   AuthenticatedAdminRolesRoute: AuthenticatedAdminRolesRoute,
   AuthenticatedAdminSapApiRoute: AuthenticatedAdminSapApiRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
-  AuthenticatedReportsSalesAnalyticsRoute:
-    AuthenticatedReportsSalesAnalyticsRoute,
   AuthenticatedTablesTableKeyRoute: AuthenticatedTablesTableKeyRoute,
   AuthenticatedTablesIndexRoute: AuthenticatedTablesIndexRoute,
-  AuthenticatedReportsFiTbnRouteRoute:
-    AuthenticatedReportsFiTbnRouteRouteWithChildren,
-  AuthenticatedReportsFiCashFlowRoute: AuthenticatedReportsFiCashFlowRoute,
   AuthenticatedReportsFiVendorAgeingRoute:
     AuthenticatedReportsFiVendorAgeingRoute,
   AuthenticatedReportsFiZfbl1nRoute: AuthenticatedReportsFiZfbl1nRoute,
@@ -921,28 +462,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedReportsInvCurrentStockRoute,
   AuthenticatedReportsInvInventoryAgingRoute:
     AuthenticatedReportsInvInventoryAgingRoute,
-  AuthenticatedReportsInvMonthWiseStockRoute:
-    AuthenticatedReportsInvMonthWiseStockRoute,
-  AuthenticatedReportsMmOpenPurchaseOrdersRoute:
-    AuthenticatedReportsMmOpenPurchaseOrdersRoute,
-  AuthenticatedReportsMmPurchaseOrdersRoute:
-    AuthenticatedReportsMmPurchaseOrdersRoute,
-  AuthenticatedReportsMmPurchaseRegisterRoute:
-    AuthenticatedReportsMmPurchaseRegisterRoute,
   AuthenticatedReportsModuleModuleRoute: AuthenticatedReportsModuleModuleRoute,
-  AuthenticatedReportsPpDailyProductionReportRoute:
-    AuthenticatedReportsPpDailyProductionReportRoute,
-  AuthenticatedReportsSdDispatchesRoute: AuthenticatedReportsSdDispatchesRoute,
-  AuthenticatedReportsSdDrilldownRoute: AuthenticatedReportsSdDrilldownRoute,
-  AuthenticatedReportsSdFinanceGstRoute: AuthenticatedReportsSdFinanceGstRoute,
-  AuthenticatedReportsSdKpiRoute: AuthenticatedReportsSdKpiRoute,
-  AuthenticatedReportsSdOpenSalesOrdersRoute:
-    AuthenticatedReportsSdOpenSalesOrdersRoute,
-  AuthenticatedReportsSdOrderBookRoute: AuthenticatedReportsSdOrderBookRoute,
-  AuthenticatedReportsSdRegisterRoute: AuthenticatedReportsSdRegisterRoute,
-  AuthenticatedReportsSdSitRoute: AuthenticatedReportsSdSitRoute,
-  AuthenticatedReportsTablesMonthWiseUploadRoute:
-    AuthenticatedReportsTablesMonthWiseUploadRoute,
   AuthenticatedReportsTablesSapMasterRoute:
     AuthenticatedReportsTablesSapMasterRoute,
   AuthenticatedReportsTablesValuationSubgroupRoute:
@@ -960,7 +480,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicSapPullZfisalesRoute: ApiPublicSapPullZfisalesRoute,
-  ApiPublicSapSyncZfisalesRoute: ApiPublicSapSyncZfisalesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

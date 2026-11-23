@@ -1,9 +1,5 @@
 import { vendorAgeingQuery, vaTotals, vaLastSync } from "@/lib/vendor-ageing-data";
-import { dailyProductionQuery, dprPeriodSummary } from "@/lib/daily-production-data";
-import { currentReportPeriod } from "@/lib/report-period";
 import { lastSyncedLabel, lastSyncShortLabel } from "@/lib/report-sync-time";
-import { monthWiseStockKpisQuery } from "@/lib/month-wise-stock-data";
-import { defaultPeriod, nowPeriodIST } from "@/lib/month-wise-stock-map";
 import type * as React from "react";
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
@@ -14,7 +10,6 @@ import { GlassLoadingPage } from "@/components/glass-loading-page";
 import { ROLE_HEADLINE, orderGroupsForRoles, primaryRole } from "@/lib/nav";
 import { useLaunchpad } from "@/lib/use-launchpad";
 import { useQuery } from "@tanstack/react-query";
-import { tablesMasterStatusQuery } from "@/lib/tables-master-status";
 
 const MODULE_ACCENT: Record<string, number> = { "sales-distribution": 1, purchase: 2, "financial-accounting": 3, inventory: 5, "production-planning": 4, "tables-master": 6 };
 
@@ -57,7 +52,6 @@ function SectionHeading({ title, subtitle, icon: Icon }: { title: string; subtit
 
 function Launchpad() {
   const { data, isLoading, error, refetch } = useLaunchpad();
-  const tmStatus = useQuery({ ...tablesMasterStatusQuery, refetchOnWindowFocus: false, staleTime: Infinity });
   const [activeGroup, setActiveGroup] = useState("all");
   const groups = useMemo(() => data ? orderGroupsForRoles(data.groups.filter((group) => data.tiles.some((tile) => tile.group_key === group.key)), data.roles) : [], [data]);
   const role = primaryRole(data?.roles);
@@ -88,14 +82,14 @@ function Launchpad() {
         return <section key={group.key} className="mb-7" data-module-accent style={{ "--module-accent": `var(--kpi-${MODULE_ACCENT[group.key] ?? 2})` } as React.CSSProperties}>
           <SectionHeading title={SECTION_TITLES[group.key] ?? group.title} subtitle={meta.subtitle} icon={meta.icon} />
           {group.key === "sales-distribution" || group.key === "purchase" || group.key === "production-planning" || group.key === "inventory" || group.key === "financial-accounting" ? <div className={group.key === "sales-distribution" || group.key === "purchase" || group.key === "production-planning" || group.key === "inventory" ? "sd-compact grid grid-cols-1 gap-2 md:grid-cols-5" : "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"}>
-            {groupTiles.map((tile) => tile.screen_key === "inv.month-wise-stock" ? <MonthWiseStockTile key={tile.id} href={tile.target_path ?? "/reports/inv/month-wise-stock"} /> : tile.screen_key === "fi.vendor-ageing" ? <VendorAgeingTile key={tile.id} href={tile.target_path ?? "/reports/fi/vendor-ageing"} /> : tile.screen_key === "pp.daily-production-report" ? <DailyProductionTile key={tile.id} href={tile.target_path ?? "/reports/pp/daily-production-report"} /> : <TileCard key={tile.id} tile={tile} {...(data?.kpis[tile.kpi_key ?? ""] ? { kpi: data.kpis[tile.kpi_key ?? ""] } : {})} />)}
+            {groupTiles.map((tile) => tile.screen_key === "fi.vendor-ageing" ? <VendorAgeingTile key={tile.id} href={tile.target_path ?? "/reports/fi/vendor-ageing"} /> : <TileCard key={tile.id} tile={tile} {...(data?.kpis[tile.kpi_key ?? ""] ? { kpi: data.kpis[tile.kpi_key ?? ""] } : {})} />)}
           </div> : group.key === "tables-master" ? <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {groupTiles.filter((tile) => ["tables.sap-master", "tables.zrmmat", "tables.zpc-group", "tables.valuation-subgroup", "tables.month-wise-upload"].includes(tile.screen_key ?? "")).map((tile, index) => (
+            {groupTiles.filter((tile) => ["tables.sap-master", "tables.zrmmat", "tables.zpc-group", "tables.valuation-subgroup"].includes(tile.screen_key ?? "")).map((tile, index) => (
               <TableStatusTile
                 key={tile.id}
                                 title={tile.title}
-                value={tile.title === "ZFISALES_DETAIL" ? "Sync Active" : tmStatus.data?.[tile.screen_key ?? ""]?.value ?? (tmStatus.isLoading ? "…" : "Open")}
-                note={tmStatus.data?.[tile.screen_key ?? ""]?.note ?? tile.subtitle ?? "Table configuration"}
+                value="Open"
+                note={tile.subtitle ?? "Table configuration"}
                 {...(tile.target_path ? { href: tile.target_path } : {})}
               />
             ))}
@@ -120,37 +114,5 @@ function VendorAgeingTile({ href }: { href: string }) {
       <li className="flex justify-between gap-1"><span className="text-muted-foreground">Total Count</span><span className="font-semibold tabular-nums text-foreground">{s.lines.toLocaleString("en-IN")}</span></li>
       <li className="truncate text-muted-foreground" title={lastSyncedLabel(sync)}>{lastSyncShortLabel(sync)}</li>
     </ul> : null}
-  </TableStatusTile>;
-}
-function DailyProductionTile({ href }: { href: string }) {
-  const q = useQuery(dailyProductionQuery);
-  const fy = currentReportPeriod();
-  const s = q.data ? dprPeriodSummary(q.data, fy.from, fy.to) : null;
-  const cr = (v: number) => (v / 1e7).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return <TableStatusTile title="Daily Production Report" value={q.isLoading ? "…" : q.isError ? "Couldn't load" : s ? `₹ ${cr(s.production)} Cr` : "No data"} note={q.isError ? "Refresh the page to try again" : "Production Val (₹ Cr)"} href={href} accent={4}>
-    {s && <ul className="mt-2 space-y-0.5 text-[10px]">
-      <li className="flex justify-between gap-1"><span className="text-muted-foreground">Scrap Val (₹ Cr)</span><span className="font-semibold tabular-nums text-foreground">{cr(s.scrap)}</span></li>
-      <li className="flex justify-between gap-1"><span className="text-muted-foreground">Total Count</span><span className="font-semibold tabular-nums text-foreground">{s.count.toLocaleString("en-IN")}</span></li>
-      <li className="truncate text-muted-foreground" title={lastSyncedLabel(s.syncedAt)}>{lastSyncShortLabel(s.syncedAt)}</li>
-    </ul>}
-  </TableStatusTile>;
-}
-function MonthWiseStockTile({ href }: { href: string }) {
-  const q = useQuery(monthWiseStockKpisQuery);
-  const all = q.data ?? [];
-  const ps = [...new Set(all.map((r) => r.period))];
-  const latest = defaultPeriod(ps, nowPeriodIST()) || ps.sort().at(-1) || "";
-  const rows = all.filter((r) => r.period === latest);
-  const total = rows.reduce((s, r) => s + r.value, 0);
-  const byType = new Map<string, number>();
-  for (const r of rows) if (r.type) byType.set(r.type, (byType.get(r.type) ?? 0) + r.value);
-  const types = [...byType].sort((a, b) => b[1] - a[1]);
-  const shown = types.slice(0, 6);
-  const cr = (v: number) => (v / 1e7).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return <TableStatusTile title="Month Wise Stock" value={q.isLoading ? "…" : q.isError ? "Couldn't load" : latest ? `₹ ${cr(total)} Cr` : "No data"} note={q.isError ? "Refresh the page to try again" : latest ? `Total Inv Val (₹ Cr) · ${latest}` : "Inventory"} href={href} accent={5}>
-    {shown.length > 0 && <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px]">
-      {shown.map(([t, v]) => <li key={t} className="flex justify-between gap-1"><span className="truncate text-muted-foreground" title={t}>{t}</span><span className="font-semibold tabular-nums text-foreground">{cr(v)}</span></li>)}
-      {types.length > shown.length && <li className="col-span-2 text-muted-foreground">+{types.length - shown.length} more</li>}
-    </ul>}
   </TableStatusTile>;
 }

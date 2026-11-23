@@ -13,34 +13,15 @@
 import { createClient } from "@supabase/supabase-js";
 import WebSocket from "ws";
 import {
-  mapPayload,
-  mapOpenSalesOrdersPayload,
   extractEmbeddedBody,
   salvageTruncatedArray,
   withEndpointDates,
-  isOpenSalesOrdersEndpoint,
-  mapZcashFlowPayload,
-  isZcashFlowEndpoint,
   mapUserDropdownPayload,
   isUserDropdownEndpoint,
-  mapOrderBookPayload,
-  isOrderBookEndpoint,
-  mapSitPayload,
-  isSitEndpoint,
-  mapSalesRegisterPayload,
-  isSalesRegisterEndpoint,
-  mapPurchaseRegisterPayload,
-  isPurchaseRegisterEndpoint,
-  mapOpenPoPayload,
-  isOpenPoEndpoint,
   mapCurrentStockPayload,
   isCurrentStockEndpoint,
-  isDailyProductionEndpoint,
   isVendorAgeingEndpoint,
   mapVendorAgeingPayload,
-  mapDailyProductionPayload,
-  mapPurchaseOrdersPayload,
-  isPurchaseOrdersEndpoint,
   keyValueObject,
   formatBytes,
 } from "./sync-core.mjs";
@@ -196,24 +177,8 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
     return (data ?? []).length > 0;
   }
 
-  /** Maps the SAP payload and writes it to zfisales_detail. */
+  /** Maps the SAP payload and writes it to its report table. */
   async function storeRows(payload, endpoint, requestSnapshot) {
-    if (isPurchaseOrdersEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapPurchaseOrdersPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("purchase_orders").upsert(rows.slice(i, i + BATCH), { onConflict: "po,po_item" });
-        if (error) throw new Error(error.message);
-      }
-      let removed = 0;
-      const dates = rows.map((r) => r.po_date).filter(Boolean).sort();
-      if (rows.length && dates.length) {
-        const { count, error } = await db.from("purchase_orders").delete({ count: "exact" })
-          .gte("po_date", dates[0]).lte("po_date", dates[dates.length - 1]).lt("synced_at", rows[0].synced_at);
-        if (error) throw new Error(error.message);
-        removed = count ?? 0;
-      }
-      return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "purchase_orders", snapshotId: null, postingFrom: null, postingTo: null };
-    }
     if (isVendorAgeingEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint);
       for (let i = 0; i < rows.length; i += BATCH) {
@@ -227,22 +192,6 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         removed = count ?? 0;
       }
       return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "vendor_ageing", snapshotId: null, postingFrom: null, postingTo: null };
-    }
-    if (isDailyProductionEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapDailyProductionPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("daily_production").upsert(rows.slice(i, i + BATCH), { onConflict: "mblnr,mjahr,zeile" });
-        if (error) throw new Error(error.message);
-      }
-      let removed = 0;
-      const dates = rows.map((r) => r.budat).filter(Boolean).sort();
-      if (rows.length && dates.length) {
-        const { count, error } = await db.from("daily_production").delete({ count: "exact" })
-          .gte("budat", dates[0]).lte("budat", dates[dates.length - 1]).lt("synced_at", rows[0].synced_at);
-        if (error) throw new Error(error.message);
-        removed = count ?? 0;
-      }
-      return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "daily_production", snapshotId: null, postingFrom: null, postingTo: null };
     }
     if (isCurrentStockEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapCurrentStockPayload(payload, endpoint);
@@ -258,71 +207,6 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
       }
       return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "current_stock", snapshotId: null, postingFrom: null, postingTo: null };
     }
-    if (isOpenPoEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapOpenPoPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("open_purchase_order").upsert(rows.slice(i, i + BATCH), { onConflict: "ebeln,ebelp" });
-        if (error) throw new Error(error.message);
-      }
-      let removed = 0;
-      const dates = rows.map((r) => r.bedat).filter(Boolean).sort();
-      if (rows.length && dates.length) {
-        const { count, error } = await db.from("open_purchase_order").delete({ count: "exact" })
-          .gte("bedat", dates[0]).lte("bedat", dates[dates.length - 1]).lt("synced_at", rows[0].synced_at);
-        if (error) throw new Error(error.message);
-        removed = count ?? 0;
-      }
-      return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "open_purchase_order", snapshotId: null, postingFrom: null, postingTo: null };
-    }
-    if (isPurchaseRegisterEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapPurchaseRegisterPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("purchase_register").upsert(rows.slice(i, i + BATCH), { onConflict: "belnr,buzei,mblnr,zeile" });
-        if (error) throw new Error(error.message);
-      }
-      return { received, stored: rows.length, replaced: 0, skipped: 0, invalid, duplicates, syncScopeKey: "purchase_register", snapshotId: null, postingFrom: null, postingTo: null };
-    }
-    if (isSalesRegisterEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapSalesRegisterPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("sales_register").upsert(rows.slice(i, i + BATCH), { onConflict: "vbeln,posnr" });
-        if (error) throw new Error(error.message);
-      }
-      return { received, stored: rows.length, replaced: 0, skipped: 0, invalid, duplicates, syncScopeKey: "sales_register", snapshotId: null, postingFrom: null, postingTo: null };
-    }
-    if (isSitEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapSitPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("sales_in_transit").upsert(rows.slice(i, i + BATCH), { onConflict: "vbeln,posnr" });
-        if (error) throw new Error(error.message);
-      }
-      // SAP returns the full current in-transit set: remove lines absent from this successful reply.
-      const existing = [];
-      for (let from = 0; ; from += 1000) {
-        const { data, error } = await db.from("sales_in_transit").select("vbeln,posnr").range(from, from + 999);
-        if (error) throw new Error(error.message);
-        existing.push(...(data ?? []));
-        if (!data || data.length < 1000) break;
-      }
-      const keep = new Set(rows.map((r) => `${r.vbeln}|${r.posnr}`));
-      const stale = existing.filter((r) => !keep.has(`${r.vbeln}|${r.posnr}`));
-      const byVbeln = new Map();
-      for (const r of stale) byVbeln.set(r.vbeln, [...(byVbeln.get(r.vbeln) ?? []), r.posnr]);
-      for (const [vbeln, posnrs] of byVbeln) {
-        const { error } = await db.from("sales_in_transit").delete().eq("vbeln", vbeln).in("posnr", posnrs);
-        if (error) throw new Error(error.message);
-      }
-      console.log(`[SIT] ${rows.length} added or updated, ${stale.length} removed`);
-      return { received, stored: rows.length, replaced: stale.length, skipped: 0, invalid, duplicates, syncScopeKey: "sales_in_transit", snapshotId: null, postingFrom: null, postingTo: null };
-    }
-    if (isOrderBookEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapOrderBookPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("order_book").upsert(rows.slice(i, i + BATCH), { onConflict: "sales_order,sales_order_item" });
-        if (error) throw new Error(error.message);
-      }
-      return { received, stored: rows.length, replaced: 0, skipped: 0, invalid, duplicates, syncScopeKey: "order_book", snapshotId: null, postingFrom: null, postingTo: null };
-    }
     if (isUserDropdownEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapUserDropdownPayload(payload, endpoint);
       for (let i = 0; i < rows.length; i += BATCH) {
@@ -331,61 +215,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
       }
       return { received, stored: rows.length, replaced: 0, skipped: 0, invalid, duplicates, syncScopeKey: "sap_user_dropdown_masters", snapshotId: null, postingFrom: null, postingTo: null };
     }
-    if (isZcashFlowEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapZcashFlowPayload(payload, endpoint);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("zcash_flow").upsert(rows.slice(i, i + BATCH), { onConflict: "profit_center,plant,gl_code" });
-        if (error) throw new Error(error.message);
-      }
-      return { received, stored: rows.length, replaced: 0, skipped: 0, invalid, duplicates, syncScopeKey: "zcash_flow", snapshotId: null, postingFrom: null, postingTo: null };
-    }
-    if (isOpenSalesOrdersEndpoint(endpoint)) {
-      const mapped = mapOpenSalesOrdersPayload(payload, endpoint, requestSnapshot);
-      const { received, rows, skipped, invalid, duplicates, syncScopeKey, snapshotId } = mapped;
-      if (!rows.length) return { received, stored: 0, replaced: 0, skipped, invalid, duplicates, syncScopeKey, snapshotId, postingFrom: null, postingTo: null };
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("open_sales_orders").insert(rows.slice(i, i + BATCH));
-        if (error) throw new Error(error.message);
-      }
-      const { data: replaced, error } = await db.rpc("activate_open_sales_orders_snapshot", {
-        _scope_key: syncScopeKey, _snapshot_id: snapshotId, _expected_count: rows.length,
-      });
-      if (error) {
-        await db.from("open_sales_orders").delete().eq("snapshot_id", snapshotId).eq("is_active_snapshot", false);
-        throw new Error(error.message);
-      }
-      return { received, stored: rows.length, replaced: replaced ?? 0, skipped, invalid, duplicates, syncScopeKey, snapshotId, postingFrom: null, postingTo: null };
-    }
-    const { received, rows, skipped, invalid, duplicates, syncScopeKey, snapshotId, postingRange } = mapPayload(
-      payload,
-      endpoint,
-      requestSnapshot,
-    );
-    if (!rows.length || !postingRange) {
-      return { received, stored: 0, replaced: 0, skipped, invalid, duplicates, syncScopeKey, snapshotId, postingFrom: null, postingTo: null };
-    }
-
-    for (let i = 0; i < rows.length; i += BATCH) {
-      const { error } = await db
-        .from("zfisales_detail")
-        .insert(rows.slice(i, i + BATCH));
-      if (error) throw new Error(error.message);
-      if (rows.length > PROGRESS_EVERY && (i + BATCH) % PROGRESS_EVERY < BATCH) {
-        console.log(`[mis-sap-middleware] staging progress: ${Math.min(i + BATCH, rows.length)}/${rows.length}`);
-      }
-    }
-    const { data: replaced, error: activateError } = await db.rpc("activate_zfisales_snapshot", {
-      _scope_key: syncScopeKey,
-      _snapshot_id: snapshotId,
-      _expected_count: rows.length,
-      _posting_from: postingRange.from,
-      _posting_to: postingRange.to,
-    });
-    if (activateError) {
-      await db.from("zfisales_detail").delete().eq("snapshot_id", snapshotId).eq("is_active_snapshot", false);
-      throw new Error(activateError.message);
-    }
-    return { received, stored: rows.length, replaced: replaced ?? 0, skipped, invalid, duplicates, syncScopeKey, snapshotId, postingFrom: postingRange.from, postingTo: postingRange.to };
+    throw new Error(`No storage is set up for endpoint "${endpoint}"`);
   }
 
   /**

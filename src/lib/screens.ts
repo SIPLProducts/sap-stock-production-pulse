@@ -3,7 +3,6 @@
  * Shared by the navigation bar, the launchpad, route guards and the
  * Screen Permissions matrix so all four stay in sync.
  */
-import { SD_REPORTS } from "./sd-reports";
 
 export type ScreenGroup =
   | "Home"
@@ -39,35 +38,13 @@ export const SUPER_ADMIN_ROLE_KEY = "super_admin";
 
 /** Module hierarchy shared by permissions, launchpad filtering, and route guards. */
 export const PERMISSION_MODULES: PermissionModule[] = [
-  {
-    key: "module.sd",
-    label: "Sales & Distribution",
-    groupKey: "sales-distribution",
-    children: [
-      { key: "sd.total-sales", label: "Net Sales", tileKey: "sd_total_sales" },
-      { key: "sd.sit", label: "Sales In Transit (SIT)", tileKey: "sd_sit" },
-      { key: "sd.dispatches", label: "Sales Register", tileKey: "sd_dispatches" },
-      { key: "sd.order-book", label: "Order Book", tileKey: "sd_order_book" },
-      { key: "sd.open-sales-orders", label: "Open Sales Orders", tileKey: "sd_open_orders" },
-    ],
-  },
-  {
-    key: "module.mm",
-    label: "Purchase",
-    groupKey: "purchase",
-    children: [
-      { key: "mm.purchase-register", label: "Purchase Register", tileKey: "mm_purchase_register" },
-      { key: "mm.purchase-orders", label: "Purchase Orders List", tileKey: "mm_purchase_orders" },
-      { key: "mm.open-purchase-orders", label: "Open Purchase Orders", tileKey: "mm_open_purchase_orders" },
-    ],
-  },
+
+
   {
     key: "module.fi",
     label: "Financial Accounting",
     groupKey: "financial-accounting",
     children: [
-      { key: "fi.tbn", label: "TBN", tileKey: "fi_tbn" },
-      { key: "fi.cash-flow", label: "Cash Flow", tileKey: "fi_cash_flow" },
       { key: "fi.vendor-ageing", label: "Vendor Ageing", tileKey: "fi_vendor_ageing" },
       { key: "fi.zfbl1n", label: "ZFBL1N", tileKey: "fi_zfbl1n" },
     ],
@@ -78,18 +55,10 @@ export const PERMISSION_MODULES: PermissionModule[] = [
     groupKey: "inventory",
     children: [
       { key: "inv.current-stock", label: "Current Stock", tileKey: "inv_current_stock" },
-      { key: "inv.month-wise-stock", label: "Month Wise Stock", tileKey: "inv_month_wise_stock" },
       { key: "inv.inventory-aging", label: "Inventory Aging", tileKey: "inv_inventory_aging" },
     ],
   },
-  {
-    key: "module.pp",
-    label: "Production Planning",
-    groupKey: "production-planning",
-    children: [
-      { key: "pp.daily-production-report", label: "Daily Production Report", tileKey: "pp_daily_production" },
-    ],
-  },
+
   {
     key: groupScreenKey(TABLES_MASTER_GROUP_KEY),
     label: "Tables Master",
@@ -99,7 +68,6 @@ export const PERMISSION_MODULES: PermissionModule[] = [
       { key: "tables.zrmmat", label: "ZKEYRM", tileKey: "table_zrmmat" },
       { key: "tables.zpc-group", label: "ZPC GROUP", tileKey: "table_zpc_group" },
       { key: "tables.valuation-subgroup", label: "Valuation Class Wise Subgroup", tileKey: "table_valuation_subgroup" },
-      { key: "tables.month-wise-upload", label: "Month Wise Upload", tileKey: "table_month_wise_upload" },
     ],
   },
 ];
@@ -134,12 +102,6 @@ export function hasAnyModuleChild(
 
 export const SCREENS: ScreenDef[] = [
   { key: "launchpad", label: "Launchpad (Home)", group: "Home" },
-  { key: "reports.sales-analytics", label: "Sales Analytics", group: "Reports" },
-  ...SD_REPORTS.map((report) => ({
-    key: report.screen,
-    label: report.title,
-    group: "Sales Distribution Reports" as const,
-  })),
   ...MODULE_CHILD_SCREENS.map((screen) => ({
     key: screen.key,
     label: screen.label,

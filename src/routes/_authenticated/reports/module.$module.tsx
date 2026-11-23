@@ -20,7 +20,6 @@ import { getModuleReport } from "@/lib/sap.functions";
 import { findModule, canAccessModule } from "@/lib/sap-modules";
 import { hasScreen } from "@/lib/screens";
 import { useLaunchpad } from "@/lib/use-launchpad";
-import { SdLiveDashboard } from "@/components/sd-live-dashboard";
 
 export const Route = createFileRoute("/_authenticated/reports/module/$module")({
   head: ({ params }) => {
@@ -82,20 +81,6 @@ function ModuleReportPage() {
       )
       .slice(0, 60);
   }, [report, search]);
-
-  const live = module === "sd";
-
-  if (live) {
-    return (
-      <ReportShell title="" description={def.description}>
-        {!rolesLoading && !allowed ? (
-          <AccessDenied area="Net Sales" />
-        ) : (
-          <SdLiveDashboard />
-        )}
-      </ReportShell>
-    );
-  }
 
   return (
     <ReportShell

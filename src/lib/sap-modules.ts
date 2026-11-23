@@ -57,35 +57,7 @@ export function modulesForScreens(screens: readonly string[] | undefined): Modul
 
 
 export const MODULES: ModuleDef[] = [
-  {
-    key: "sd",
-    code: "SD",
-    title: "Net Sales",
-    groupKey: "sales-distribution",
-    groupTitle: "Net Sales",
-    description: "",
-    seed: 2101,
-    trendLabel: "Net sales",
-    trendUnit: "EUR",
-    secondaryLabel: "Billed",
-    breakdownLabel: "Revenue by distribution channel",
-    dimensions: ["Direct Sales", "Distributors", "E-Commerce", "Key Accounts", "Retail", "OEM"],
-    columns: [
-      { key: "document", label: "Sales order" },
-      { key: "partner", label: "Sold-to party" },
-      { key: "dimension", label: "Channel" },
-      { key: "site", label: "Sales org" },
-      { key: "quantity", label: "Qty", numeric: true },
-      { key: "value", label: "Net value", numeric: true },
-      { key: "date", label: "Requested date" },
-      { key: "status", label: "Status" },
-    ],
-    documentPrefix: "SO-",
-    statuses: ["Open", "In Delivery", "Billed", "Backorder", "Blocked"],
-    kpis: [
-      { key: "sd_open_orders", label: "Open Sales Orders", subtitle: "Not yet delivered", base: 1_284, kind: "kpi", icon: "cart" },
-    ],
-  },
+
   {
     key: "fi",
     code: "FI",
@@ -118,35 +90,7 @@ export const MODULES: ModuleDef[] = [
       { key: "fi_cash_trend", label: "Cash Flow Trend", subtitle: "Monthly net cash", unit: "K EUR", base: 2_140, kind: "chart", icon: "trend" },
     ],
   },
-  {
-    key: "pp",
-    code: "PP",
-    title: "Production Planning",
-    groupKey: "production-planning",
-    groupTitle: "Production Planning",
-    description: "Production orders, capacity load, schedule adherence and shortages.",
-    seed: 5501,
-    trendLabel: "Output",
-    trendUnit: "units",
-    secondaryLabel: "Planned",
-    breakdownLabel: "Production volume by plant",
-    dimensions: ["1010 Hamburg", "1710 Chicago", "2210 Lyon", "3310 Osaka", "4410 Pune", "5510 Monterrey"],
-    columns: [
-      { key: "document", label: "Production order" },
-      { key: "partner", label: "Material" },
-      { key: "dimension", label: "Plant" },
-      { key: "site", label: "Work centre" },
-      { key: "quantity", label: "Qty", numeric: true },
-      { key: "value", label: "Order cost", numeric: true },
-      { key: "date", label: "Finish date" },
-      { key: "status", label: "Status" },
-    ],
-    documentPrefix: "PO-",
-    statuses: ["Created", "Released", "In Progress", "Confirmed", "Delayed"],
-    kpis: [
-      { key: "pp_daily_production", label: "Daily Production Report", subtitle: "Daily production output", base: 0, kind: "kpi", icon: "list" },
-    ],
-  },
+
 ];
 
 export const MODULE_KEYS = MODULES.map((m) => m.key);
