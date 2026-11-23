@@ -15,7 +15,7 @@ export type ZfSummary = {
 export type ZfRow = { bukrs: string; lifnr: string; name1: string; belnr: string; buzei: number; blart: string; budat: string; bldat: string; faedt: string; verzn: number; dmshb: number; waers: string; prctr: string; hkont: string; txt50: string; zuonr: string; sgtxt: string; augbl: string; augdt: string };
 type Opt = { value: string; label: string };
 
-const rpc = supabase.rpc as unknown as (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
+const rpc = supabase.rpc.bind(supabase) as unknown as (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const n = (v: unknown) => Number(v) || 0;
 const list = (v: unknown): NV[] => (Array.isArray(v) ? v : []).map((d: { name?: unknown; value?: unknown }) => ({ name: String(d.name ?? ""), value: n(d.value) }));
 
