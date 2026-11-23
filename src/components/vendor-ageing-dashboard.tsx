@@ -11,7 +11,7 @@ import { FilterMultiSelect } from "@/components/filter-multi-select";
 import { TINTS } from "@/lib/card-tints";
 import { BarList, Card, Donut, PlantColumns } from "@/components/open-po-dashboard";
 import { datedFileName } from "@/lib/format";
-import { isMsme, rebucketByBasis, VA_BUCKETS, vaGroup, vaTotals, type VaBasis, type VaRow } from "@/lib/vendor-ageing-data";
+import { isMsme, rebucketByBasis, VA_BUCKETS, vaGlDocSplit, vaGroup, vaGroupSplit, vaMsmeClass, vaTotals, type VaBasis, type VaRow } from "@/lib/vendor-ageing-data";
 
 const CR = 1e7;
 const cr = (v: number) => (v / CR).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -27,6 +27,7 @@ const ok = (sel: string[] | null, v: string) => sel === null || sel.includes(v);
 export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
   const [f, setF] = useState(EMPTY);
   const [open, setOpen] = useState(false);
+  const [top, setTop] = useState<"pay" | "adv" | "pc">("pay");
   const [range, setRange] = useState<DateRange | undefined>();
   const [basis, setBasis] = useState<VaBasis>("all");
   const [q, setQ] = useState("");
@@ -43,12 +44,11 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
     return rebucketByBasis(base, basis, keyDate);
   }, [rows, f, range, basis, keyDate]);
   const t = vaTotals(data);
-  const vendors = vaGroup(data, (r) => r.vendorName).slice(0, 10);
-  const pcs = vaGroup(data, (r) => r.prctrText).slice(0, 10);
-  const gls = vaGroup(data, (r) => r.glText).slice(0, 10);
+  const topList = (top === "adv" ? vaGroupSplit(data, (r) => r.vendorName, "advance") : top === "pc" ? vaGroupSplit(data, (r) => r.prctrText, "payable") : vaGroupSplit(data, (r) => r.vendorName, "payable")).slice(0, 10);
+  const glSplit = vaGlDocSplit(data);
   const segs = vaGroup(data, (r) => r.segment).slice(0, 10);
   const cos = vaGroup(data, (r) => r.bukrs).slice(0, 15).map((d) => ({ ...d, value: d.value / CR }));
-  const msme = vaGroup(data, msmeLabel);
+  const msme = vaGroupSplit(data, vaMsmeClass, "payable");
   const table = data.filter((r) => !q || `${r.vendor} ${r.vendorName} ${r.doc} ${r.docType} ${r.bukrs} ${r.prctr} ${r.prctrText} ${r.gl} ${r.glText} ${r.ref} ${r.text} ${r.po}`.toLowerCase().includes(q.toLowerCase())).sort((a, b) => b.days - a.days);
   const tt = vaTotals(table);
   const pages = Math.max(1, Math.ceil(table.length / PAGE));
@@ -63,11 +63,14 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
     const blob = new Blob([await wb.xlsx.writeBuffer()]); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = datedFileName("Vendor Ageing", "xlsx"); a.click(); URL.revokeObjectURL(a.href);
   };
   const field = (k: Key, label: string) => <FilterMultiSelect label={label} placeholder="All" selected={f[k]} options={opts[k]} onChange={(v) => { setF({ ...f, [k]: v.length === opts[k].length ? null : v }); setPage(0); }} />;
-  const tiles: [string, string, string][] = [
-    ["Total Outstanding", cr(t.total), "#1f6fd1"],
-    ["MSME Outstanding", cr(t.msme), "#7b4fd6"],
-    ["Vendors", num(t.vendors, 0), "#2f8f4e"],
+  const tiles: [string, string, string, string][] = [
+    ["Total Outstanding", `₹ ${cr(t.total)} Cr`, `Across ${num(t.vendors, 0)} Vendors`, "#1f6fd1"],
+    ["Net Payable", `₹ ${cr(t.payable)} Cr`, "Credit Balance", "#0f8a8a"],
+    ["Vendor Advances", `₹ ${cr(t.advances)} Cr`, "Debit / Unadjusted", "#7b4fd6"],
+    ["MSME Overdue (>45 Days)", `₹ ${cr(t.msmeOverdue45)} Cr`, "Critical Compliance Alert", "#d1453b"],
   ];
+  const SEG = ["var(--kpi-1)", "var(--kpi-2)", "var(--kpi-3)", "var(--kpi-4)", "var(--kpi-6)"];
+  const glMax = Math.max(1, ...glSplit.rows.map((g) => g.total));
 
   return <div className="space-y-3">
     <div data-pdf-exclude className="rounded-xl border border-border shadow-sm" style={TINTS.neutral}>
@@ -78,19 +81,24 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
         <div className="flex items-end"><Button type="button" variant="reset" size="sm" className="h-8 w-full text-xs" onClick={() => { setF(EMPTY); setRange(undefined); setBasis("all"); setPage(0); }}>Reset</Button></div></div>
         <div className="flex flex-wrap items-center gap-3 text-xs"><span className="font-medium text-muted-foreground">Age basis</span><RadioGroup value={basis} onValueChange={(v) => { setBasis(v as VaBasis); setPage(0); }} className="flex flex-wrap gap-4">{BASES.map(([v, l]) => <div key={v} className="flex items-center gap-1.5"><RadioGroupItem value={v} id={`va-basis-${v}`} /><Label htmlFor={`va-basis-${v}`} className="text-xs">{l}</Label></div>)}</RadioGroup>{basis === "grn" ? <span className="text-muted-foreground">No GRN date in data</span> : null}</div></div> : null}
     </div>
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-      {tiles.map(([label, value, tone]) => <div key={label} className="min-w-0 rounded-xl px-2.5 py-2 text-primary-foreground shadow-md" style={{ background: `linear-gradient(135deg, ${tone}cc, ${tone})` }}>
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      {tiles.map(([label, value, note, tone]) => <div key={label} className="min-w-0 rounded-xl px-2.5 py-2 text-primary-foreground shadow-md" style={{ background: `linear-gradient(135deg, ${tone}cc, ${tone})` }}>
         <p className="text-[10px] font-semibold opacity-95">{label}</p>
-        <p title={value} className="mt-1 truncate text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p></div>)}
+        <p title={value} className="mt-1 truncate text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p><p className="text-[10px] opacity-90">{note}</p></div>)}
     </div>
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_1fr]">
       <Card title="Ageing Buckets" sub="Val in Cr" tint="sky"><Donut data={VA_BUCKETS.map((name, i) => ({ name, value: t.buckets[i] ?? 0 })).filter((d) => d.value > 0)} heads={["Bucket", "Val", "%"]} /></Card>
-      <Card title="MSME vs Non-MSME" sub="Val in Cr" tint="peach"><Donut data={msme} heads={["Type", "Val", "%"]} /></Card>
+      <Card title="MSME vs Non-MSME Exposure" sub="Val in Cr" tint="peach"><Donut data={msme} heads={["Type", "Val", "%"]} /></Card>
     </div>
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <Card title="Top 10 Vendors" sub="Val in Cr" tint="teal"><BarList data={vendors} /></Card>
-      <Card title="Top 10 Profit Centers" sub="Val in Cr" tint="amber"><BarList data={pcs} /></Card>
-      <Card title="By G/L Account" sub="Val in Cr" tint="rose"><BarList data={gls} /></Card>
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <Card title={top === "adv" ? "Top 10 Vendors by Advance" : top === "pc" ? "Top 10 Profit Centers" : "Top 10 Vendors by Payable"} sub="Val in Cr" tint="teal">
+        <div data-pdf-exclude className="mb-2 flex flex-wrap gap-1 text-[11px]">{([["pay", "Top Payables"], ["adv", "Top Advances"], ["pc", "Top Profit Centers"]] as const).map(([k, l]) => <button key={k} type="button" onClick={() => setTop(k)} className={`rounded-full border px-2 py-0.5 ${top === k ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{l}</button>)}</div>
+        <BarList data={topList} /></Card>
+      <Card title="GL Account & Document Type Split" sub="Payable · Val in Cr" tint="rose">
+        <div className="space-y-2">{glSplit.rows.map((g) => <div key={g.name} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-2 text-[11px]"><span title={g.name} className="truncate">{g.name}</span>
+          <div className="flex h-4 overflow-hidden rounded bg-muted" style={{ width: `${(g.total / glMax) * 100}%` }}>{glSplit.keys.map((k, i) => (g.parts[k] ?? 0) > 0 ? <div key={k} title={`${k}: ₹ ${cr(g.parts[k] ?? 0)} Cr`} style={{ width: `${((g.parts[k] ?? 0) / g.total) * 100}%`, background: SEG[i] }} /> : null)}</div>
+          <span className="tabular-nums">₹ {cr(g.total)}</span></div>)}
+          {glSplit.rows.length ? <div className="flex flex-wrap gap-3 pt-1 text-[10px] text-muted-foreground">{glSplit.keys.map((k, i) => <span key={k} className="flex items-center gap-1"><span className="size-2 rounded-full" style={{ background: SEG[i] }} />{k}</span>)}</div> : <p className="text-xs text-muted-foreground">No data</p>}</div></Card>
     </div>
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_1fr]">
       <Card title="Outstanding by Company Code" sub="Val in Cr" tint="copper"><PlantColumns data={cos} /></Card>

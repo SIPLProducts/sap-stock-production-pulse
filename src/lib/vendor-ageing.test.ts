@@ -17,3 +17,17 @@ describe("vendor ageing", () => {
     expect([out.R1, out.R2, out.R3]).toEqual(["X", "", ""]);
   });
 });
+
+import { vaTotals as _vt, toVaRow as _tr } from "./vendor-ageing-data";
+import { describe as _d, it as _i, expect as _e } from "vitest";
+_d("payable vs advance split", () => {
+  const rows = [
+    _tr({ lifnr: "A", wrbtr: -100, days: 60, mindk_desc: "Micro Enterprise" }),
+    _tr({ lifnr: "A", wrbtr: -50, days: 10, mindk_desc: "Micro Enterprise" }),
+    _tr({ lifnr: "B", wrbtr: 30, days: 90 }),
+  ];
+  _i("keeps payables and advances separate; net = payable − advances", () => {
+    const t = _vt(rows); _e(t.payable).toBe(150); _e(t.advances).toBe(30); _e(t.total).toBe(120);
+  });
+  _i("MSME overdue counts only MSME payables older than 45 days", () => { _e(_vt(rows).msmeOverdue45).toBe(100); });
+});

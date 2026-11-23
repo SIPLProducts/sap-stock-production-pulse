@@ -26,14 +26,35 @@ export const isMsme = (r: VaRow) => !!r.msmeNo || (!!r.msmeDesc && !/not/i.test(
 
 export function vaTotals(rows: VaRow[]) {
   const buckets = VA_BUCKETS.map(() => 0);
-  let total = 0, msme = 0;
-  for (const r of rows) { total += r.amount; if (isMsme(r)) msme += r.amount; r.buckets.forEach((v, i) => { buckets[i]! += v; }); }
-  return { total, msme, buckets, vendors: new Set(rows.map((r) => r.vendor)).size, lines: rows.length };
+  let total = 0, msme = 0, payable = 0, advances = 0, msmeOverdue45 = 0;
+  for (const r of rows) {
+    total += r.amount; if (isMsme(r)) msme += r.amount;
+    if (r.amount > 0) { payable += r.amount; if (isMsme(r) && r.days > 45) msmeOverdue45 += r.amount; r.buckets.forEach((v, i) => { buckets[i]! += v; }); }
+    else advances -= r.amount;
+  }
+  return { total, msme, payable, advances, msmeOverdue45, buckets, vendors: new Set(rows.map((r) => r.vendor)).size, lines: rows.length };
 }
 export function vaGroup(rows: VaRow[], key: (r: VaRow) => string) {
   const m = new Map<string, number>();
   for (const r of rows) { const k = key(r); if (!k) continue; m.set(k, (m.get(k) ?? 0) + r.amount); }
   return [...m].map(([name, value]) => ({ name, value })).filter((d) => d.value > 0).sort((a, b) => b.value - a.value);
+}
+/** Micro / Small / Medium from SAP MSME description; anything else is Non-MSME. */
+export function vaMsmeClass(r: VaRow) { const d = r.msmeDesc.toLowerCase(); return /not/.test(d) ? "Non-MSME" : d.includes("micro") ? "Micro" : d.includes("small") ? "Small" : d.includes("medium") ? "Medium" : "Non-MSME"; }
+/** Group payable (positive) or advance (negative, shown positive) lines separately so advances never cancel payables. */
+export function vaGroupSplit(rows: VaRow[], key: (r: VaRow) => string, side: "payable" | "advance") {
+  const m = new Map<string, number>();
+  for (const r of rows) { const v = side === "payable" ? r.amount : -r.amount; if (v <= 0) continue; const k = key(r); if (!k) continue; m.set(k, (m.get(k) ?? 0) + v); }
+  return [...m].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+}
+/** Payable value per G/L account split by document type (top G/Ls, top doc types, rest as Others). */
+export function vaGlDocSplit(rows: VaRow[], gls = 6, types = 4) {
+  const glTop = vaGroupSplit(rows, (r) => r.glText, "payable").slice(0, gls).map((d) => d.name);
+  const typeTop = vaGroupSplit(rows, (r) => r.docType, "payable").slice(0, types).map((d) => d.name);
+  const keys = [...typeTop, "Others"];
+  const out = glTop.map((name) => ({ name, parts: Object.fromEntries(keys.map((k) => [k, 0])) as Record<string, number>, total: 0 }));
+  for (const r of rows) { if (r.amount <= 0) continue; const g = out.find((o) => o.name === r.glText); if (!g) continue; const k = typeTop.includes(r.docType) ? r.docType : "Others"; g.parts[k] = (g.parts[k] ?? 0) + r.amount; g.total += r.amount; }
+  return { keys, rows: out };
 }
 export function vaLastSync(rows: VaRow[]) { let m = ""; for (const r of rows) if (r.syncedAt > m) m = r.syncedAt; return m || null; }
 
