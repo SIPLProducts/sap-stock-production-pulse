@@ -35,7 +35,7 @@ export function AppSidebar() {
   const admin = adminNavForScreens(screens);
 
   return (
-    <Sidebar collapsible="icon" data-pdf-exclude>
+    <Sidebar collapsible="offcanvas" data-pdf-exclude>
       <SidebarContent className="pt-2">
         <SidebarGroup><SidebarGroupContent><SidebarMenu>
           <SidebarMenuItem>

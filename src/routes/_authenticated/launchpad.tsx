@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { BadgeCheck, Boxes, CircleDollarSign, Factory, Radio, ShoppingCart } from "lucide-react";
 import { ShellBar } from "@/components/shell-bar";
+import { useSidebar } from "@/components/ui/sidebar";
 import { TableStatusTile, TileCard } from "@/components/tile-card";
 import { GlassLoadingPage } from "@/components/glass-loading-page";
 import { ROLE_HEADLINE, orderGroupsForRoles, primaryRole } from "@/lib/nav";
@@ -54,19 +55,21 @@ function SectionHeading({ title, subtitle, icon: Icon }: { title: string; subtit
 function Launchpad() {
   const { data, isLoading, error, refetch } = useLaunchpad();
   const [activeGroup, setActiveGroup] = useState("all");
+  const { open: menuOpen, isMobile } = useSidebar();
+  const showTabs = isMobile || !menuOpen;
   const groups = useMemo(() => data ? orderGroupsForRoles(data.groups.filter((group) => data.tiles.some((tile) => tile.group_key === group.key)), data.roles) : [], [data]);
   const role = primaryRole(data?.roles);
   const visibleGroups = activeGroup === "all" ? groups : groups.filter((group) => group.key === activeGroup);
 
   return <div className="min-h-screen bg-background">
     <ShellBar launchpad title="Home" displayName={data?.profile?.display_name} screens={data?.screens} />
-    <div className="border-b border-shell-foreground/10 bg-shell shadow-sm">
-      <div className="mx-auto flex max-w-[1500px] gap-1 overflow-x-auto px-3 py-1.5" role="tablist" aria-label="Launchpad modules">
-        {[{ key: "all", title: "All Modules" }, ...groups].map((group) => <button key={group.key} type="button" role="tab" aria-selected={activeGroup === group.key} onClick={() => setActiveGroup(group.key)} className={`min-h-7 shrink-0 border-b-2 px-4 text-[10px] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-shell-foreground focus-visible:outline-none ${activeGroup === group.key ? "border-shell-foreground text-shell-foreground" : "border-transparent text-shell-muted hover:bg-shell-foreground/10 hover:text-shell-foreground"}`}>{group.title}</button>)}
+    {showTabs ? <div className="border-b border-border bg-card shadow-sm">
+      <div className="flex gap-1 overflow-x-auto px-3 py-1.5 sm:px-5" role="tablist" aria-label="Launchpad modules">
+        {[{ key: "all", title: "All Modules" }, ...groups].map((group) => <button key={group.key} type="button" role="tab" aria-selected={activeGroup === group.key} onClick={() => setActiveGroup(group.key)} className={`min-h-7 shrink-0 border-b-2 px-4 text-[10px] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${activeGroup === group.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:bg-primary/10 hover:text-primary"}`}>{group.title}</button>)}
       </div>
-    </div>
+    </div> : null}
 
-    <main className="mx-auto max-w-[1500px] px-3 py-4 sm:px-5">
+    <main className="px-3 py-4 sm:px-5">
       {error ? <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-card p-4 text-sm text-destructive"><span>Could not load modules. Please try again.</span><button type="button" onClick={() => void refetch()} className="rounded-md border border-border px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted">Retry</button></div> : null}
       {role ? <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border/80 bg-card px-4 py-3 shadow-launchpad-tile">
         <div className="flex min-w-0 items-center gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><BadgeCheck className="size-[18px]" /></span><div className="min-w-0"><span className="text-[10px] font-bold tracking-wide text-primary uppercase">{role}</span><p className="truncate text-[11px] text-muted-foreground">{ROLE_HEADLINE[role]}</p></div></div>
