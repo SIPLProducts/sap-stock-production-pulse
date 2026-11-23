@@ -1,48 +1,48 @@
-import { useId, useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ChevronDown } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CalendarIcon, ChevronDown } from "lucide-react";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { FilterMultiSelect } from "@/components/filter-multi-select";
 import { TINTS } from "@/lib/card-tints";
 import { BarList, Card, Donut, PlantColumns } from "@/components/open-po-dashboard";
 import { datedFileName } from "@/lib/format";
-import { isMsme, VA_BUCKETS, vaGroup, vaTotals, type VaRow } from "@/lib/vendor-ageing-data";
+import { isMsme, rebucketByBasis, VA_BUCKETS, vaGroup, vaTotals, type VaBasis, type VaRow } from "@/lib/vendor-ageing-data";
 
 const CR = 1e7;
 const cr = (v: number) => (v / CR).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const num = (v: number, d = 2) => v.toLocaleString("en-IN", { maximumFractionDigits: d });
 const ddmm = (iso: string) => (iso ? `${iso.slice(8, 10)}-${iso.slice(5, 7)}-${iso.slice(0, 4)}` : "");
 const PAGE = 50;
-type Key = "vendor" | "bukrs" | "docType" | "prctr" | "gl" | "msme";
-const EMPTY: Record<Key, string[] | null> = { vendor: null, bukrs: null, docType: null, prctr: null, gl: null, msme: null };
+type Key = "vendor" | "bukrs" | "docType" | "prctr" | "pcText" | "gl" | "msme";
+const EMPTY: Record<Key, string[] | null> = { vendor: null, bukrs: null, docType: null, prctr: null, pcText: null, gl: null, msme: null };
+const BASES: [VaBasis, string][] = [["all", "All"], ["due", "Due Date"], ["post", "Posting Date"], ["grn", "GRN Date"]];
+const iso = (d: Date) => format(d, "yyyy-MM-dd");
 const ok = (sel: string[] | null, v: string) => sel === null || sel.includes(v);
-
-function BucketChart({ data }: { data: number[] }) {
-  const id = useId().replace(/[^a-zA-Z0-9]/g, "");
-  const rows = VA_BUCKETS.map((name, i) => ({ name, value: (data[i] ?? 0) / CR }));
-  return <div className="h-60"><ResponsiveContainer><BarChart data={rows} margin={{ top: 10, left: -4, right: 6 }}>
-    <defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--kpi-3)" stopOpacity={0.6} /><stop offset="100%" stopColor="var(--kpi-3)" /></linearGradient></defs>
-    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-    <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--foreground)" }} interval={0} />
-    <YAxis tick={{ fontSize: 10, fill: "var(--foreground)" }} width={56} tickFormatter={(v: number) => v.toFixed(2)} />
-    <Tooltip formatter={(v: number) => [`${v.toFixed(2)} Cr`, "Outstanding"]} />
-    <Bar dataKey="value" fill={`url(#${id})`} radius={[4, 4, 0, 0]} />
-  </BarChart></ResponsiveContainer></div>;
-}
 
 export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
   const [f, setF] = useState(EMPTY);
   const [open, setOpen] = useState(false);
+  const [range, setRange] = useState<DateRange | undefined>();
+  const [basis, setBasis] = useState<VaBasis>("all");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(0);
   const msmeLabel = (r: VaRow) => (isMsme(r) ? "MSME" : "Non-MSME");
   const opts = useMemo(() => {
     const pairs = (k: (r: VaRow) => string, l: (r: VaRow) => string) => [...new Map(rows.filter((r) => k(r)).map((r) => [k(r), l(r) && l(r) !== k(r) ? `${k(r)} - ${l(r)}` : k(r)]))].sort((a, b) => a[0].localeCompare(b[0])).map(([value, label]) => ({ value, label }));
-    return { vendor: pairs((r) => r.vendor, (r) => r.vendorName), bukrs: pairs((r) => r.bukrs, () => ""), docType: pairs((r) => r.docType, () => ""), prctr: pairs((r) => r.prctr, (r) => r.prctrText), gl: pairs((r) => r.gl, (r) => r.glText), msme: pairs(msmeLabel, () => "") };
+    return { vendor: pairs((r) => r.vendor, (r) => r.vendorName), bukrs: pairs((r) => r.bukrs, () => ""), docType: pairs((r) => r.docType, () => ""), prctr: pairs((r) => r.prctr, (r) => r.prctrText), pcText: pairs((r) => r.prctrText, () => ""), gl: pairs((r) => r.gl, (r) => r.glText), msme: pairs(msmeLabel, () => "") };
   }, [rows]);
-  const data = useMemo(() => rows.filter((r) => ok(f.vendor, r.vendor) && ok(f.bukrs, r.bukrs) && ok(f.docType, r.docType) && ok(f.prctr, r.prctr) && ok(f.gl, r.gl) && ok(f.msme, msmeLabel(r))), [rows, f]);
-  const t = vaTotals(data);
   const keyDate = rows.find((r) => r.keyDate)?.keyDate ?? "";
+  const data = useMemo(() => {
+    const from = range?.from ? iso(range.from) : "", to = range?.to ? iso(range.to) : from;
+    const base = rows.filter((r) => ok(f.vendor, r.vendor) && ok(f.bukrs, r.bukrs) && ok(f.docType, r.docType) && ok(f.prctr, r.prctr) && ok(f.pcText, r.prctrText) && ok(f.gl, r.gl) && ok(f.msme, msmeLabel(r)) && (!from || (r.postDate >= from && r.postDate <= to)));
+    return rebucketByBasis(base, basis, keyDate);
+  }, [rows, f, range, basis, keyDate]);
+  const t = vaTotals(data);
   const vendors = vaGroup(data, (r) => r.vendorName).slice(0, 10);
   const pcs = vaGroup(data, (r) => r.prctrText).slice(0, 10);
   const gls = vaGroup(data, (r) => r.glText).slice(0, 10);
@@ -77,8 +77,11 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
   return <div className="space-y-3">
     <div data-pdf-exclude className="rounded-xl border border-border shadow-sm" style={TINTS.neutral}>
       <button type="button" aria-expanded={open} onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-3 py-1.5 text-xs font-semibold text-card-foreground"><span>Filters{keyDate ? <span className="ml-2 font-normal text-muted-foreground">Key Date: {ddmm(keyDate)}</span> : null}</span><ChevronDown className={`size-4 transition-transform ${open ? "" : "-rotate-90"}`} /></button>
-      {open ? <div className="grid grid-cols-2 gap-2 px-3 pb-2 sm:grid-cols-4 lg:grid-cols-7">{field("vendor", "Vendor")}{field("bukrs", "Company Code")}{field("docType", "Document Type")}{field("prctr", "Profit Center")}{field("gl", "G/L Account")}{field("msme", "MSME")}
-        <div className="flex items-end"><Button type="button" variant="reset" size="sm" className="h-8 w-full text-xs" onClick={() => { setF(EMPTY); setPage(0); }}>Reset</Button></div></div> : null}
+      {open ? <div className="space-y-2 px-3 pb-2"><div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-9">
+        <div className="col-span-2 flex min-w-0 flex-col gap-1"><span className="text-[11px] font-medium text-muted-foreground">Posting Date</span><Popover><PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className={`h-8 w-full justify-start text-xs font-normal ${range?.from ? "" : "text-muted-foreground"}`}><CalendarIcon className="size-3.5" />{range?.from ? `${format(range.from, "dd-MM-yyyy")}${range.to ? ` – ${format(range.to, "dd-MM-yyyy")}` : ""}` : "All dates"}</Button></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="range" selected={range} onSelect={(v) => { setRange(v); setPage(0); }} numberOfMonths={2} initialFocus className="p-3 pointer-events-auto" /></PopoverContent></Popover></div>
+        {field("vendor", "Vendor")}{field("bukrs", "Company Code")}{field("docType", "Document Type")}{field("prctr", "Profit Center")}{field("pcText", "Profit Center Text")}{field("gl", "G/L Account")}{field("msme", "MSME")}
+        <div className="flex items-end"><Button type="button" variant="reset" size="sm" className="h-8 w-full text-xs" onClick={() => { setF(EMPTY); setRange(undefined); setBasis("all"); setPage(0); }}>Reset</Button></div></div>
+        <div className="flex flex-wrap items-center gap-3 text-xs"><span className="font-medium text-muted-foreground">Age basis</span><RadioGroup value={basis} onValueChange={(v) => { setBasis(v as VaBasis); setPage(0); }} className="flex flex-wrap gap-4">{BASES.map(([v, l]) => <div key={v} className="flex items-center gap-1.5"><RadioGroupItem value={v} id={`va-basis-${v}`} /><Label htmlFor={`va-basis-${v}`} className="text-xs">{l}</Label></div>)}</RadioGroup>{basis === "grn" ? <span className="text-muted-foreground">No GRN date in data</span> : null}</div></div> : null}
     </div>
     <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-7">
       {tiles.map(([label, value, tone]) => <div key={label} className="min-w-0 rounded-xl px-2.5 py-2 text-primary-foreground shadow-md" style={{ background: `linear-gradient(135deg, ${tone}cc, ${tone})` }}>
@@ -86,7 +89,7 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
         <p title={value} className="mt-1 truncate text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p></div>)}
     </div>
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-[2fr_1fr]">
-      <Card title="Ageing Buckets" sub="Val in Cr" tint="sky"><BucketChart data={t.buckets} /></Card>
+      <Card title="Ageing Buckets" sub="Val in Cr" tint="sky"><Donut data={VA_BUCKETS.map((name, i) => ({ name, value: t.buckets[i] ?? 0 })).filter((d) => d.value > 0)} heads={["Bucket", "Val", "%"]} /></Card>
       <Card title="MSME vs Non-MSME" sub="Val in Cr" tint="peach"><Donut data={msme} heads={["Type", "Val", "%"]} /></Card>
     </div>
     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">

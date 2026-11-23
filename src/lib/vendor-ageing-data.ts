@@ -53,3 +53,22 @@ export async function getVendorAgeing(): Promise<VaRow[]> {
   return out.map(toVaRow);
 }
 export const vendorAgeingQuery = queryOptions({ queryKey: ["vendor-ageing", "v1"], queryFn: getVendorAgeing, staleTime: Infinity, refetchOnWindowFocus: false });
+
+export type VaBasis = "all" | "due" | "post" | "grn";
+const VA_LIMITS = [30, 90, 120, 180, 365, 730, 1095, 1825];
+/** Re-age rows from the chosen date to the key date; "all" keeps stored SAP buckets. GRN date is not sent by SAP, so "grn" yields no rows. */
+export function rebucketByBasis(rows: VaRow[], basis: VaBasis, keyDate: string): VaRow[] {
+  if (basis === "all") return rows;
+  const out: VaRow[] = [];
+  for (const r of rows) {
+    const from = basis === "due" ? r.dueDate : basis === "post" ? r.postDate : "";
+    const key = r.keyDate || keyDate;
+    if (!from || !key) continue;
+    const days = Math.round((Date.parse(key) - Date.parse(from)) / 86400000);
+    if (Number.isNaN(days)) continue;
+    let i = VA_LIMITS.findIndex((l) => days <= l); if (i < 0) i = VA_LIMITS.length;
+    const buckets = VA_BUCKETS.map((_, j) => (j === i ? r.amount : 0));
+    out.push({ ...r, days, buckets });
+  }
+  return out;
+}
