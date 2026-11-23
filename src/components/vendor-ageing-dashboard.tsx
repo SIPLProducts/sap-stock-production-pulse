@@ -63,13 +63,8 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
     const blob = new Blob([await wb.xlsx.writeBuffer()]); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = datedFileName("Vendor Ageing", "xlsx"); a.click(); URL.revokeObjectURL(a.href);
   };
   const field = (k: Key, label: string) => <FilterMultiSelect label={label} placeholder="All" selected={f[k]} options={opts[k]} onChange={(v) => { setF({ ...f, [k]: v.length === opts[k].length ? null : v }); setPage(0); }} />;
-  const b = t.buckets;
   const tiles: [string, string, string][] = [
     ["Total Outstanding", cr(t.total), "#1f6fd1"],
-    ["0-30 Days", cr(b[0]!), "#0f9d8a"],
-    ["31-180 Days", cr(b[1]! + b[2]! + b[3]!), "#e0a030"],
-    ["181-365 Days", cr(b[4]!), "#e07b39"],
-    ["> 1 Year", cr(b[5]! + b[6]! + b[7]! + b[8]!), "#d64550"],
     ["MSME Outstanding", cr(t.msme), "#7b4fd6"],
     ["Vendors", num(t.vendors, 0), "#2f8f4e"],
   ];
@@ -83,7 +78,7 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
         <div className="flex items-end"><Button type="button" variant="reset" size="sm" className="h-8 w-full text-xs" onClick={() => { setF(EMPTY); setRange(undefined); setBasis("all"); setPage(0); }}>Reset</Button></div></div>
         <div className="flex flex-wrap items-center gap-3 text-xs"><span className="font-medium text-muted-foreground">Age basis</span><RadioGroup value={basis} onValueChange={(v) => { setBasis(v as VaBasis); setPage(0); }} className="flex flex-wrap gap-4">{BASES.map(([v, l]) => <div key={v} className="flex items-center gap-1.5"><RadioGroupItem value={v} id={`va-basis-${v}`} /><Label htmlFor={`va-basis-${v}`} className="text-xs">{l}</Label></div>)}</RadioGroup>{basis === "grn" ? <span className="text-muted-foreground">No GRN date in data</span> : null}</div></div> : null}
     </div>
-    <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-7">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
       {tiles.map(([label, value, tone]) => <div key={label} className="min-w-0 rounded-xl px-2.5 py-2 text-primary-foreground shadow-md" style={{ background: `linear-gradient(135deg, ${tone}cc, ${tone})` }}>
         <p className="text-[10px] font-semibold opacity-95">{label}</p>
         <p title={value} className="mt-1 truncate text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p></div>)}
