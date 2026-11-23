@@ -22,6 +22,8 @@ import {
   isCurrentStockEndpoint,
   isVendorAgeingEndpoint,
   mapVendorAgeingPayload,
+  withVendorAgeingBasis,
+  VA_BASES,
   isZfbl1nEndpoint,
   mapZfbl1nPayload,
   keyValueObject,
@@ -180,7 +182,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
   }
 
   /** Maps the SAP payload and writes it to its report table. */
-  async function storeRows(payload, endpoint, requestSnapshot) {
+  async function storeRows(payload, endpoint, requestSnapshot, va = null) {
     if (isZfbl1nEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapZfbl1nPayload(payload, endpoint);
       for (let i = 0; i < rows.length; i += BATCH) {
@@ -196,13 +198,14 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
       return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "zfbl1n_items", snapshotId: null, postingFrom: null, postingTo: null };
     }
     if (isVendorAgeingEndpoint(endpoint)) {
-      const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint);
+      const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint, va ? new Date(va.syncedAt) : new Date(), va?.label ?? null);
       for (let i = 0; i < rows.length; i += BATCH) {
         const { error } = await db.from("vendor_ageing").insert(rows.slice(i, i + BATCH));
         if (error) { await db.from("vendor_ageing").delete().eq("synced_at", rows[0].synced_at); throw new Error(error.message); }
       }
       let removed = 0;
-      if (rows.length) {
+      // Older snapshots go only after the final (GRN) call of a three-call sync.
+      if (rows.length && (!va || va.final)) {
         const { count, error } = await db.from("vendor_ageing").delete({ count: "exact" }).lt("synced_at", rows[0].synced_at);
         if (error) throw new Error(error.message);
         removed = count ?? 0;
@@ -239,7 +242,24 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
    * stores the rows and records the run. Used by the tick and by the manual
    * trigger endpoint.
    */
-  async function runEndpoint(endpointName, { manual = false } = {}) {
+  /** Vendor Ageing calls SAP three times (R1 Due, R2 Posting, R3 GRN) and keeps them as one snapshot. */
+  async function runEndpoint(endpointName, opts = {}) {
+    if (!isVendorAgeingEndpoint(endpointName) || opts.va) return runEndpointOnce(endpointName, opts);
+    if (!opts.manual && (await runInProgress(endpointName))) return { status: "skipped", reason: "A previous run is still in progress" };
+    const syncedAt = new Date().toISOString();
+    let last = null, stored = 0, received = 0, invalid = 0, replaced = 0;
+    for (const [key, label] of VA_BASES) {
+      last = await runEndpointOnce(endpointName, { ...opts, manual: true, scheduledBody: !opts.manual, va: { key, label, syncedAt, final: key === "R3" } });
+      if (last.status !== "synced") {
+        await db.from("vendor_ageing").delete().eq("synced_at", syncedAt);
+        return last.status === "error" ? { ...last, message: `${label} call failed: ${last.message}` } : last;
+      }
+      stored += last.stored; received += last.received; invalid += last.invalid; replaced += last.replaced;
+    }
+    return { ...last, stored, received, invalid, replaced };
+  }
+
+  async function runEndpointOnce(endpointName, { manual = false, va = null, scheduledBody } = {}) {
     if (!enabled) return { status: "error", message: "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not configured" };
     if (inFlight.has(endpointName)) return { status: "skipped", reason: "Already running in this process" };
     inFlight.add(endpointName);
@@ -289,8 +309,9 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         endpoint.body_template,
         endpoint.posting_range,
         new Date(),
-        !manual,
+        scheduledBody ?? !manual,
       );
+      if (va) bodyText = withVendorAgeingBasis(bodyText, va.key);
       snapshot = {
         source: manual ? "middleware-manual" : "middleware-scheduler",
         systemKey: system.key,
@@ -350,7 +371,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         }
       }
 
-      const counts = await storeRows(payload, endpointName, snapshot);
+      const counts = await storeRows(payload, endpointName, snapshot, va);
       await finishRun(runId, endpointName, {
         status: "success",
         records_received: counts.received,

@@ -17,7 +17,7 @@ export function isVendorAgeingEndpoint(name: string): boolean {
 }
 const text = (v: unknown) => { if (v == null || typeof v === "object") return null; const s = String(v).trim(); return s || null; };
 
-export function mapVendorAgeingPayload(payload: unknown, endpointName: string, now = new Date()) {
+export function mapVendorAgeingPayload(payload: unknown, endpointName: string, now = new Date(), pcText: string | null = null) {
   const obj = (payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {}) as Record<string, unknown>;
   const source = (Array.isArray(payload) ? payload : Array.isArray(obj["DATA"]) ? obj["DATA"] : Array.isArray(obj["data"]) ? obj["data"] : []) as Record<string, unknown>[];
   const keyDate = sapIsoDate(obj["KEY_DATE"]), runDate = sapIsoDate(obj["RUN_DATE"]);
@@ -26,7 +26,7 @@ export function mapVendorAgeingPayload(payload: unknown, endpointName: string, n
   let invalid = 0;
   for (const raw of source) {
     if (!raw || typeof raw !== "object" || !text(raw["LIFNR"])) { invalid++; continue; }
-    const row: Record<string, unknown> = { key_date: keyDate, run_date: runDate, raw, source_endpoint: endpointName, synced_at: syncedAt };
+    const row: Record<string, unknown> = { key_date: keyDate, run_date: runDate, raw, source_endpoint: endpointName, synced_at: syncedAt, pc_text: pcText };
     for (const k of TEXT) row[k.toLowerCase()] = text(raw[k]);
     for (const k of NUM) row[k.toLowerCase()] = orderBookNum(raw[k]);
     for (const k of INT) { const n = orderBookNum(raw[k]); row[k.toLowerCase()] = n == null ? null : Math.trunc(n); }
@@ -57,4 +57,18 @@ export function sapIsoDate(v: unknown): string | null {
   if (m) return `${m[1]}-${m[2]}-${m[3]}`;
   m = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
   return m ? `${m[3]}-${m[2]!.padStart(2, "0")}-${m[1]!.padStart(2, "0")}` : null;
+}
+
+/** Every Vendor Ageing sync calls SAP once per basis, in this order; each row stores its basis label in pc_text. */
+export const VA_BASES = [["R1", "Due Date"], ["R2", "Posting Date"], ["R3", "GRN Date"]] as const;
+export type VaBasisKey = (typeof VA_BASES)[number][0];
+
+/** Sets exactly one of R1/R2/R3 to "X" for the given basis call. */
+export function withVendorAgeingBasis(raw: string | undefined, key: VaBasisKey): string | undefined {
+  if (!raw || !raw.trim()) return raw;
+  try {
+    const obj = { ...(JSON.parse(raw) as Record<string, unknown>) };
+    for (const k of ["R1", "R2", "R3"]) obj[k] = k === key ? "X" : "";
+    return JSON.stringify(obj);
+  } catch { return raw; }
 }

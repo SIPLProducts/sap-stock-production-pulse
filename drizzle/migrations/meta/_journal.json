@@ -22,6 +22,13 @@
       "when": 1795456555985,
       "tag": "0002_restore_signup_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795460408212,
+      "tag": "0003_vendor_ageing_pc_text",
+      "breakpoints": true
     }
   ]
 }

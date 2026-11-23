@@ -5,7 +5,7 @@
  */
 import { isUserDropdownEndpoint, mapUserDropdownPayload } from "./user-dropdown-map";
 import { isCurrentStockEndpoint, mapCurrentStockPayload } from "./current-stock-map";
-import { isVendorAgeingEndpoint, mapVendorAgeingPayload } from "./vendor-ageing-map";
+import { isVendorAgeingEndpoint, mapVendorAgeingPayload, VA_BASES, withVendorAgeingBasis, type VaBasisKey } from "./vendor-ageing-map";
 import { isZfbl1nEndpoint, mapZfbl1nPayload } from "./zfbl1n-map";
 import {
   extractEmbeddedBody,
@@ -114,14 +114,17 @@ export async function storeCurrentStockPayload(
   }
 }
 
+type VaCall = { key?: VaBasisKey; label?: string; syncedAt?: string; final?: boolean };
+
 export async function storeVendorAgeingPayload(
   payload: unknown,
   endpointName: string,
   requestSnapshot?: unknown,
   metrics: RunMetrics = {},
+  va: VaCall = {},
 ): Promise<SyncCounts> {
   const db = await admin();
-  const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpointName);
+  const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpointName, va.syncedAt ? new Date(va.syncedAt) : new Date(), va.label ?? null);
   const { data: run } = await db.from("sap_sync_runs").insert({
     endpoint: endpointName, status: "running", started_at: new Date().toISOString(), records_received: received,
     records_invalid: invalid, response_bytes: metrics.responseBytes ?? 0, duration_ms: metrics.durationMs ?? 0,
@@ -141,12 +144,13 @@ export async function storeVendorAgeingPayload(
     }
     // Full snapshot: once the new rows are all in, older snapshots are removed. Empty replies keep existing data.
     let removed = 0;
-    if (rows.length && syncedAt) {
+    // Older snapshots go only after the last basis call (GRN) of a successful three-call sync.
+    if (rows.length && syncedAt && va.final !== false) {
       const { count, error } = await db.from("vendor_ageing" as never).delete({ count: "exact" }).lt("synced_at", syncedAt);
       if (error) throw error;
       removed = count ?? 0;
     }
-    await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
+    await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${va.label ? va.label + ": " : ""}${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
     return { ...base, replaced: removed, stored: rows.length };
   } catch (err) {
     if (syncedAt) await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);
@@ -187,7 +191,7 @@ export async function storeZfbl1nPayload(
       if (error) throw error;
       removed = count ?? 0;
     }
-    await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
+    await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${va.label ? va.label + ": " : ""}${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
     return { ...base, replaced: removed, stored: rows.length };
   } catch (err) {
     if (syncedAt) await db.from("zfbl1n_items" as never).delete().eq("synced_at", syncedAt);
@@ -241,9 +245,30 @@ export type PullResult =
 /** Calls the middleware for the given endpoint and stores the response. */
 export async function pullSapEndpoint(
   endpointName: string,
-  options: { scheduled?: boolean } = {},
+  options: { scheduled?: boolean; va?: VaCall } = {},
 ): Promise<PullResult> {
-  if (await runInProgress(endpointName)) {
+  // Vendor Ageing: one SAP call per basis (R1 Due, R2 Posting, R3 GRN) stored as one snapshot.
+  if (isVendorAgeingEndpoint(endpointName) && !options.va) {
+    if (await runInProgress(endpointName)) {
+      const reason = "A sync is already running — this scheduled attempt was skipped";
+      await logSkipped(endpointName, reason);
+      return { status: "skipped", reason };
+    }
+    const syncedAt = new Date().toISOString();
+    let last: PullResult | null = null;
+    let stored = 0, received = 0, invalid = 0, replaced = 0;
+    for (const [key, label] of VA_BASES) {
+      last = await pullSapEndpoint(endpointName, { ...options, va: { key, label, syncedAt, final: key === "R3" } });
+      if (last.status !== "synced") {
+        const db = await admin();
+        await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);
+        return last.status === "error" ? { ...last, message: `${label} call failed: ${last.message}` } : last;
+      }
+      stored += last.stored; received += last.received; invalid += last.invalid; replaced += last.replaced;
+    }
+    return { ...(last as Extract<PullResult, { status: "synced" }>), stored, received, invalid, replaced };
+  }
+  if (!options.va && await runInProgress(endpointName)) {
     const reason = "A sync is already running — this scheduled attempt was skipped";
     await logSkipped(endpointName, reason);
     return { status: "skipped", reason };
@@ -288,6 +313,7 @@ export async function pullSapEndpoint(
       options.scheduled === true,
     ),
   };
+  if (options.va?.key) outbound.body = withVendorAgeingBasis(outbound.body, options.va.key);
 
   const startedMs = Date.now();
   const size = (bytes: number) =>
@@ -397,7 +423,7 @@ export async function pullSapEndpoint(
 
 
 
-  const counts = await (isZfbl1nEndpoint(endpointName) ? storeZfbl1nPayload : isVendorAgeingEndpoint(endpointName) ? storeVendorAgeingPayload : isCurrentStockEndpoint(endpointName) ? storeCurrentStockPayload : isUserDropdownEndpoint(endpointName) ? storeUserDropdownPayload : storeUnmappedPayload)(payload, endpointName, outbound, {
+  const counts = await (isZfbl1nEndpoint(endpointName) ? storeZfbl1nPayload : isVendorAgeingEndpoint(endpointName) ? ((p: unknown, n: string, o?: unknown, m?: RunMetrics) => storeVendorAgeingPayload(p, n, o, m, options.va)) : isCurrentStockEndpoint(endpointName) ? storeCurrentStockPayload : isUserDropdownEndpoint(endpointName) ? storeUserDropdownPayload : storeUnmappedPayload)(payload, endpointName, outbound, {
     durationMs,
     responseBytes: bytes,
     httpStatus: response.status,

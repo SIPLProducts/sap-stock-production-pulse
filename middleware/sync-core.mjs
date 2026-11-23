@@ -57,7 +57,7 @@ var text = (v) => {
   const s = String(v).trim();
   return s || null;
 };
-function mapVendorAgeingPayload(payload, endpointName, now = /* @__PURE__ */ new Date()) {
+function mapVendorAgeingPayload(payload, endpointName, now = /* @__PURE__ */ new Date(), pcText = null) {
   const obj = payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {};
   const source = Array.isArray(payload) ? payload : Array.isArray(obj["DATA"]) ? obj["DATA"] : Array.isArray(obj["data"]) ? obj["data"] : [];
   const keyDate = sapIsoDate(obj["KEY_DATE"]), runDate = sapIsoDate(obj["RUN_DATE"]);
@@ -69,7 +69,7 @@ function mapVendorAgeingPayload(payload, endpointName, now = /* @__PURE__ */ new
       invalid++;
       continue;
     }
-    const row = { key_date: keyDate, run_date: runDate, raw, source_endpoint: endpointName, synced_at: syncedAt };
+    const row = { key_date: keyDate, run_date: runDate, raw, source_endpoint: endpointName, synced_at: syncedAt, pc_text: pcText };
     for (const k of TEXT) row[k.toLowerCase()] = text(raw[k]);
     for (const k of NUM) row[k.toLowerCase()] = orderBookNum(raw[k]);
     for (const k of INT) {
@@ -80,6 +80,17 @@ function mapVendorAgeingPayload(payload, endpointName, now = /* @__PURE__ */ new
     rows.push(row);
   }
   return { received: source.length, rows, invalid, duplicates: 0 };
+}
+var VA_BASES = [["R1", "Due Date"], ["R2", "Posting Date"], ["R3", "GRN Date"]];
+function withVendorAgeingBasis(raw, key) {
+  if (!raw || !raw.trim()) return raw;
+  try {
+    const obj = { ...JSON.parse(raw) };
+    for (const k of ["R1", "R2", "R3"]) obj[k] = k === key ? "X" : "";
+    return JSON.stringify(obj);
+  } catch {
+    return raw;
+  }
 }
 function withVendorAgeingPayload(raw, now = /* @__PURE__ */ new Date(), scheduled = false) {
   if (!raw || !raw.trim()) return raw ?? void 0;
@@ -574,5 +585,7 @@ export {
   withEndpointDates,
   withPostingDates,
   withVendorAgeingPayload,
+  withVendorAgeingBasis,
+  VA_BASES,
   withZfbl1nPayload
 };

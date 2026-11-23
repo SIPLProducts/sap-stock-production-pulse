@@ -3353,6 +3353,7 @@ export type Database = {
           msme_no: string | null
           name1: string | null
           net_due_date: string | null
+          pc_text: string | null
           prctr: string | null
           prctr_text: string | null
           raw: Json | null
@@ -3410,6 +3411,7 @@ export type Database = {
           msme_no?: string | null
           name1?: string | null
           net_due_date?: string | null
+          pc_text?: string | null
           prctr?: string | null
           prctr_text?: string | null
           raw?: Json | null
@@ -3467,6 +3469,7 @@ export type Database = {
           msme_no?: string | null
           name1?: string | null
           net_due_date?: string | null
+          pc_text?: string | null
           prctr?: string | null
           prctr_text?: string | null
           raw?: Json | null
