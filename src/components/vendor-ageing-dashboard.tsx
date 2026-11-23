@@ -87,10 +87,8 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
         <p className="text-[10px] font-semibold opacity-95">{label}</p>
         <p title={value} className="mt-1 truncate text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p><p className="text-[10px] opacity-90">{note}</p></div>)}
     </div>
-    <div>
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
       <Card title="Ageing Buckets" sub="Val in Cr" tint="sky"><Donut data={VA_BUCKETS.map((name, i) => ({ name, value: t.buckets[i] ?? 0 })).filter((d) => d.value > 0)} heads={["Bucket", "Val", "%"]} /></Card>
-    </div>
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
       <Card title="MSME vs Non-MSME Exposure" sub="Val in Cr" tint="peach"><Donut data={msme} heads={["Type", "Val", "%"]} /></Card>
       <Card title="GL Account & Document Type Split" sub="Payable · Val in Cr" tint="rose">
         <div className="space-y-2">{glSplit.rows.map((g) => <div key={g.name} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-2 text-[11px]"><span title={g.name} className="truncate">{g.name}</span>
