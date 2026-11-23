@@ -1,3 +1,4 @@
+import { BrandLoader } from "@/components/brand-loader";
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { CalendarIcon, ChevronDown } from "lucide-react";
@@ -83,7 +84,7 @@ export function Zfbl1nDashboard() {
           <Button type="button" variant="reset" size="sm" className="ml-auto h-8 text-xs" onClick={() => { setF(ZF_EMPTY); setPage(0); }}>Reset</Button></div>
       </div> : null}
     </div>
-    {sum.error ? <p className="text-sm text-destructive">{(sum.error as Error).message}</p> : !s ? <p className="text-sm text-muted-foreground">Loading ZFBL1N…</p> : <>
+    {sum.error ? <p className="text-sm text-destructive">{(sum.error as Error).message}</p> : !s ? <BrandLoader inline label="Loading ZFBL1N…" /> : <>
       <div className={`grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6 ${sum.isFetching ? "opacity-70" : ""}`}>
         {tiles.map(([label, value, note, tone]) => <div key={label} className="min-w-0 rounded-xl px-2.5 py-2 text-primary-foreground shadow-md" style={{ background: `linear-gradient(135deg, ${tone}cc, ${tone})` }}>
           <p className="text-[10px] font-semibold opacity-95">{label}</p><p title={value} className="mt-1 truncate text-sm font-bold tabular-nums leading-tight sm:text-base">{value}</p><p className="text-[10px] opacity-90">{note}</p></div>)}
