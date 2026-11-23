@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/components/confirm-dialog";
 import { ThemeProvider } from "@/components/theme-provider";
+import { BrandLoader } from "@/components/brand-loader";
 
 function NotFoundComponent() {
   return (
@@ -118,15 +119,8 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <div
-          id="app-boot"
-          className="flex min-h-screen items-center justify-center bg-surface px-6 text-center"
-          role="status"
-        >
-          <div>
-            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary motion-reduce:animate-none" />
-            <p className="mt-4 text-sm text-muted-foreground">Opening RESL MIS Portal…</p>
-          </div>
+        <div id="app-boot">
+          <BrandLoader label="Opening portal…" />
         </div>
         <div id="app-content">{children}</div>
         <Scripts />
@@ -141,7 +135,11 @@ function RootComponent() {
 
   useEffect(() => {
     const boot = document.getElementById("app-boot");
-    if (boot) boot.style.display = "none";
+    if (boot) {
+      boot.style.transition = "opacity 0.5s ease";
+      boot.style.opacity = "0";
+      window.setTimeout(() => { boot.style.display = "none"; }, 500);
+    }
 
     // Reload only when the signed-in user actually changes. Supabase re-emits
     // SIGNED_IN on tab focus/session recovery; those must not refresh reports.
