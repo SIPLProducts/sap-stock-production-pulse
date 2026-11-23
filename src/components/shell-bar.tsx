@@ -70,7 +70,6 @@ export function ShellBar({
 
   return (
     <header data-pdf-exclude className="shell-bar sticky top-0 z-40 flex h-14 items-center gap-3 px-3 text-foreground">
-      <SidebarTrigger aria-label="Toggle menu" className="shrink-0 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary" />
       <Link to="/launchpad" className="flex min-w-0 items-center gap-2">
         <span className={`grid shrink-0 place-items-center overflow-hidden  h-8 rounded-lg px-1`}>
           <span className="inline-flex items-center"><img src={reslLogo.url} alt="RESL" className={`h-7 w-auto object-contain`} /></span>
@@ -124,6 +123,7 @@ export function ShellBar({
           <Bell className={launchpad ? "size-3.5" : "size-[18px]"} />
           {launchpad ? <span className="hidden sm:inline">Alerts</span> : null}
         </button>
+        <SidebarTrigger aria-label="Toggle menu" className="shrink-0 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary" />
         {launchpad ? (
           <button type="button" aria-label="Settings" className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] transition-colors hover:bg-primary/10 hover:text-primary">
             <Settings className="size-3.5" />
