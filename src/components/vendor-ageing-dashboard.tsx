@@ -27,7 +27,6 @@ const ok = (sel: string[] | null, v: string) => sel === null || sel.includes(v);
 export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
   const [f, setF] = useState(EMPTY);
   const [open, setOpen] = useState(false);
-  const [top, setTop] = useState<"pay" | "adv" | "pc">("pay");
   const [range, setRange] = useState<DateRange | undefined>();
   const [basis, setBasis] = useState<VaBasis>("all");
   const [q, setQ] = useState("");
@@ -44,7 +43,9 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
     return rebucketByBasis(base, basis, keyDate);
   }, [rows, f, range, basis, keyDate]);
   const t = vaTotals(data);
-  const topList = (top === "adv" ? vaGroupSplit(data, (r) => r.vendorName, "advance") : top === "pc" ? vaGroupSplit(data, (r) => r.prctrText, "payable") : vaGroupSplit(data, (r) => r.vendorName, "payable")).slice(0, 10);
+  const topPay = vaGroupSplit(data, (r) => r.vendorName, "payable").slice(0, 10);
+  const topAdv = vaGroupSplit(data, (r) => r.vendorName, "advance").slice(0, 10);
+  const topPc = vaGroupSplit(data, (r) => r.prctrText, "payable").slice(0, 10);
   const glSplit = vaGlDocSplit(data);
   const segs = vaGroup(data, (r) => r.segment).slice(0, 10);
   const cos = vaGroup(data, (r) => r.bukrs).slice(0, 15).map((d) => ({ ...d, value: d.value / CR }));
@@ -90,10 +91,12 @@ export function VendorAgeingDashboard({ rows }: { rows: VaRow[] }) {
       <Card title="Ageing Buckets" sub="Val in Cr" tint="sky"><Donut data={VA_BUCKETS.map((name, i) => ({ name, value: t.buckets[i] ?? 0 })).filter((d) => d.value > 0)} heads={["Bucket", "Val", "%"]} /></Card>
       <Card title="MSME vs Non-MSME Exposure" sub="Val in Cr" tint="peach"><Donut data={msme} heads={["Type", "Val", "%"]} /></Card>
     </div>
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-      <Card title={top === "adv" ? "Top 10 Vendors by Advance" : top === "pc" ? "Top 10 Profit Centers" : "Top 10 Vendors by Payable"} sub="Val in Cr" tint="teal">
-        <div data-pdf-exclude className="mb-2 flex flex-wrap gap-1 text-[11px]">{([["pay", "Top Payables"], ["adv", "Top Advances"], ["pc", "Top Profit Centers"]] as const).map(([k, l]) => <button key={k} type="button" onClick={() => setTop(k)} className={`rounded-full border px-2 py-0.5 ${top === k ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{l}</button>)}</div>
-        <BarList data={topList} /></Card>
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <Card title="Top 10 Vendors by Payable" sub="Val in Cr" tint="teal"><BarList data={topPay} /></Card>
+      <Card title="Top 10 Vendors by Advance" sub="Val in Cr" tint="sky"><BarList data={topAdv} /></Card>
+      <Card title="Top 10 Profit Centers" sub="Val in Cr" tint="amber"><BarList data={topPc} /></Card>
+    </div>
+    <div>
       <Card title="GL Account & Document Type Split" sub="Payable · Val in Cr" tint="rose">
         <div className="space-y-2">{glSplit.rows.map((g) => <div key={g.name} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-2 text-[11px]"><span title={g.name} className="truncate">{g.name}</span>
           <div className="flex h-4 overflow-hidden rounded bg-muted" style={{ width: `${(g.total / glMax) * 100}%` }}>{glSplit.keys.map((k, i) => (g.parts[k] ?? 0) > 0 ? <div key={k} title={`${k}: ₹ ${cr(g.parts[k] ?? 0)} Cr`} style={{ width: `${((g.parts[k] ?? 0) / g.total) * 100}%`, background: SEG[i] }} /> : null)}</div>
