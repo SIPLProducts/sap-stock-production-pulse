@@ -39,6 +39,8 @@ const ICONS = {
   fi_receivables: CircleDollarSign,
   fi_payables: Banknote,
   fi_dso: CalendarClock,
+  fi_vendor_ageing: CalendarClock,
+  fi_zfbl1n: Banknote,
   fi_cash_trend: TrendingUp,
   pp_daily_production: Factory,
   inv_current_stock: PackageCheck,

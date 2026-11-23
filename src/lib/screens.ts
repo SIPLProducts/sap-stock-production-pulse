@@ -68,6 +68,8 @@ export const PERMISSION_MODULES: PermissionModule[] = [
     children: [
       { key: "fi.tbn", label: "TBN", tileKey: "fi_tbn" },
       { key: "fi.cash-flow", label: "Cash Flow", tileKey: "fi_cash_flow" },
+      { key: "fi.vendor-ageing", label: "Vendor Ageing", tileKey: "fi_vendor_ageing" },
+      { key: "fi.zfbl1n", label: "ZFBL1N", tileKey: "fi_zfbl1n" },
     ],
   },
   {
