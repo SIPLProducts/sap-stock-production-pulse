@@ -89,7 +89,7 @@
   --card-foreground: oklch(0.28 0.023 253);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.28 0.023 253);
-  --primary: oklch(0.548 0.163 254);
+  --primary: oklch(0.56 0.21 27);
   --primary-foreground: oklch(0.99 0.002 247);
   --secondary: oklch(0.94 0.006 247);
   --secondary-foreground: oklch(0.33 0.025 253);
@@ -110,7 +110,7 @@
   --gold: oklch(0.72 0.15 70);
   --ink: oklch(0.25 0.04 250);
   --ink-foreground: oklch(0.98 0.002 247);
-  --shell: oklch(0.45 0.135 255);
+  --shell: oklch(0.27 0.05 20);
   --shell-foreground: oklch(0.98 0.002 247);
   --shell-muted: oklch(0.8 0.018 251);
   --surface: oklch(0.952 0.01 255);
@@ -132,7 +132,7 @@
     inset 0 1px 0 color-mix(in oklab, oklch(1 0 0) 70%, transparent);
   --border: oklch(0.885 0.007 247);
   --input: oklch(0.86 0.008 247);
-  --ring: oklch(0.548 0.163 254);
+  --ring: oklch(0.56 0.21 27);
   --chart-1: oklch(0.548 0.163 254);
   --chart-2: oklch(0.62 0.12 195);
   --chart-3: oklch(0.56 0.13 152);
@@ -169,7 +169,7 @@
 }
 
 .pdf-export-theme {
-  --primary: oklch(0.42 0.13 252);
+  --primary: oklch(0.5 0.2 27);
   --success: oklch(0.56 0.13 170);
   --warning: oklch(0.72 0.15 70);
   --destructive: oklch(0.58 0.2 25);
@@ -262,7 +262,7 @@
   --card-foreground: oklch(0.95 0.004 247);
   --popover: oklch(0.26 0.021 253);
   --popover-foreground: oklch(0.95 0.004 247);
-  --primary: oklch(0.68 0.14 251);
+  --primary: oklch(0.64 0.2 27);
   --primary-foreground: oklch(0.18 0.02 253);
   --secondary: oklch(0.31 0.021 253);
   --secondary-foreground: oklch(0.95 0.004 247);
@@ -285,7 +285,7 @@
   --shell-muted: oklch(0.72 0.016 251);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.68 0.14 251);
+  --ring: oklch(0.64 0.2 27);
   --chart-1: oklch(0.68 0.14 251);
   --chart-2: oklch(0.72 0.11 195);
   --chart-3: oklch(0.68 0.13 152);
@@ -779,9 +779,9 @@
   --accent: oklch(1 0 0 / 14%);
   --border: oklch(1 0 0 / 16%);
   --input: oklch(1 0 0 / 20%);
-  --primary: oklch(0.85 0.13 85);
+  --primary: oklch(0.66 0.21 27);
   --primary-foreground: oklch(0.2 0.02 60);
-  --ring: oklch(0.85 0.13 85);
+  --ring: oklch(0.66 0.21 27);
   --shell: oklch(1 0 0 / 7%);
   --sidebar: oklch(1 0 0 / 7%);
   --sidebar-border: oklch(1 0 0 / 14%);
@@ -964,3 +964,14 @@
   animation: bl-bar 1.4s ease-in-out infinite;
 }
 @keyframes bl-bar { 0% { background-position: -60% 0, 0 0; } 100% { background-position: 160% 0, 0 0; } }
+
+.shell-bar {
+  background: linear-gradient(90deg, var(--shell), color-mix(in oklab, var(--shell) 82%, var(--primary)));
+  box-shadow: inset 0 -3px 0 transparent;
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, oklch(0.45 0.17 25), oklch(0.62 0.22 27), oklch(0.45 0.17 25)) 1;
+}
+.nav-item[data-active="true"] {
+  background-image: linear-gradient(110deg, oklch(0.45 0.17 25), oklch(0.6 0.22 27));
+  color: oklch(1 0 0);
+}

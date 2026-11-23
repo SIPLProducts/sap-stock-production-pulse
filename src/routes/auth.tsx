@@ -144,8 +144,7 @@ function AuthPage() {
       {/* Right sign-in panel */}
       <div className="relative flex items-center justify-center bg-[var(--neu-surface)] p-6">
         <div className="flex w-full max-w-[34rem] flex-col items-center justify-center rounded-3xl bg-[var(--neu-surface)] px-8 py-10 shadow-[var(--shadow-neu-raised)] md:aspect-square md:rounded-full md:px-20">
-          <img src={reslLogo.url} alt="RESL logo" className="h-12 w-auto" />
-          <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground">Login</h1>
+          <h1 className=" text-4xl font-bold tracking-tight text-foreground">Login</h1>
           <p className="mt-1 text-sm text-muted-foreground">Sign in to your account</p>
 
           <form onSubmit={handleSignIn} className="mt-7 w-full max-w-sm space-y-5">

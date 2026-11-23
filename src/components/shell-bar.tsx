@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Bell, Home, LogOut, Maximize, Minimize, Moon, Settings, Sparkles, Sun, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useTheme } from "@/components/theme-provider";
 import { adminNavForScreens } from "@/lib/nav";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ShellBar({
+  title,
   displayName,
   screens,
   launchpad = false,
@@ -67,16 +69,18 @@ export function ShellBar({
   }
 
   return (
-    <header className={`sticky top-0 z-40 flex items-center gap-3 bg-shell px-4 text-shell-foreground ${launchpad ? "h-10" : "h-14"}`}>
+    <header data-pdf-exclude className="shell-bar sticky top-0 z-40 flex h-14 items-center gap-3 px-3 text-shell-foreground">
+      <SidebarTrigger aria-label="Toggle menu" className="shrink-0 rounded-lg text-shell-foreground hover:bg-primary/25 hover:text-shell-foreground" />
       <Link to="/launchpad" className="flex min-w-0 items-center gap-2">
-        <span className={`grid shrink-0 place-items-center overflow-hidden bg-shell-foreground/14 ${launchpad ? "h-7 rounded-lg px-1.5" : "h-8 rounded-lg px-2"}`}>
-          <span className="inline-flex items-center rounded-md bg-card px-1.5 py-0.5 shadow-sm"><img src={reslLogo.url} alt="RESL" className={`${launchpad ? "h-6" : "h-7"} w-auto object-contain`} /></span>
+        <span className={`grid shrink-0 place-items-center overflow-hidden bg-shell-foreground/14 h-8 rounded-lg px-1`}>
+          <span className="inline-flex items-center rounded-md bg-card px-1.5 py-0.5 shadow-sm"><img src={reslLogo.url} alt="RESL" className={`h-7 w-auto object-contain`} /></span>
         </span>
         <span className="flex min-w-0 items-center gap-2">
           <span className={`truncate font-semibold tracking-wide ${launchpad ? "text-xs" : "text-sm"}`}>MIS PORTAL</span>
         </span>
       </Link>
-      <span className="flex-1" aria-hidden="true" />
+      <span className="hidden flex-1 truncate text-center text-sm font-semibold tracking-wide md:block">{launchpad ? "" : title}</span>
+      <span className="flex-1 md:hidden" aria-hidden="true" />
 
 
       <div className="flex items-center gap-1">
@@ -87,7 +91,7 @@ export function ShellBar({
           aria-label={`Switch to ${theme === "light" ? "dark" : theme === "dark" ? "glassy" : "light"} mode`}
           title={`Switch to ${theme === "light" ? "dark" : theme === "dark" ? "glassy" : "light"} mode`}
           onClick={toggleTheme}
-          className="shrink-0 rounded-full text-shell-foreground hover:bg-shell-foreground/10 hover:text-shell-foreground"
+          className="shrink-0 rounded-full text-shell-foreground hover:bg-primary/25 hover:text-shell-foreground"
         >
           {theme === "light" ? <Moon /> : theme === "dark" ? <Sparkles /> : <Sun />}
         </Button>
@@ -99,7 +103,7 @@ export function ShellBar({
             aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
             title={isFullscreen ? "Exit full screen" : "Full screen"}
             onClick={toggleFullscreen}
-            className="shrink-0 rounded-full text-shell-foreground hover:bg-shell-foreground/10 hover:text-shell-foreground"
+            className="shrink-0 rounded-full text-shell-foreground hover:bg-primary/25 hover:text-shell-foreground"
           >
             {isFullscreen ? <Minimize /> : <Maximize />}
           </Button>
@@ -108,20 +112,20 @@ export function ShellBar({
           to="/launchpad"
           aria-label="Home"
           title="Home"
-          className={`${launchpad ? "hidden" : ""} rounded-full p-2 transition-colors hover:bg-shell-foreground/10`}
+          className={`${launchpad ? "hidden" : ""} rounded-full p-2 transition-colors hover:bg-primary/25`}
         >
           <Home className="size-[18px]" />
         </Link>
         <button
           type="button"
           aria-label="Notifications"
-          className={`rounded-full transition-colors hover:bg-shell-foreground/10 ${launchpad ? "inline-flex items-center gap-1 px-2 py-1 text-[10px]" : "hidden p-2 sm:inline-flex"}`}
+          className={`rounded-full transition-colors hover:bg-primary/25 ${launchpad ? "inline-flex items-center gap-1 px-2 py-1 text-[10px]" : "hidden p-2 sm:inline-flex"}`}
         >
           <Bell className={launchpad ? "size-3.5" : "size-[18px]"} />
           {launchpad ? <span className="hidden sm:inline">Alerts</span> : null}
         </button>
         {launchpad ? (
-          <button type="button" aria-label="Settings" className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] transition-colors hover:bg-shell-foreground/10">
+          <button type="button" aria-label="Settings" className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] transition-colors hover:bg-primary/25">
             <Settings className="size-3.5" />
             <span className="hidden sm:inline">Settings</span>
           </button>
@@ -129,7 +133,7 @@ export function ShellBar({
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Account"
-            className="ml-1 flex min-w-0 items-center gap-2 rounded-full p-1 transition-colors hover:bg-shell-foreground/10"
+            className="ml-1 flex min-w-0 items-center gap-2 rounded-full p-1 transition-colors hover:bg-primary/25"
           >
             <span className={`grid shrink-0 place-items-center rounded-full bg-shell-foreground/15 ${launchpad ? "size-6 text-[10px] font-semibold" : "size-8"}`}>
               {launchpad ? "SA" : <User className="size-4" />}

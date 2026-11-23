@@ -1,4 +1,6 @@
 import { createFileRoute, isRedirect, Outlet, redirect } from "@tanstack/react-router";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -13,5 +15,12 @@ export const Route = createFileRoute("/_authenticated")({
       throw redirect({ to: "/auth" });
     }
   },
-  component: () => <Outlet />,
+  component: () => (
+    <SidebarProvider defaultOpen={false} className="min-h-svh w-full">
+      <AppSidebar />
+      <SidebarInset className="min-w-0">
+        <Outlet />
+      </SidebarInset>
+    </SidebarProvider>
+  ),
 });
