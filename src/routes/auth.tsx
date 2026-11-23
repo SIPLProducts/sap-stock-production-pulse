@@ -110,14 +110,7 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Left branding panel */}
-      <div className="relative hidden flex-col overflow-hidden bg-shell p-10 text-shell-foreground lg:flex">
-        {/* centered RESL logo watermark behind the description */}
-        <img
-          aria-hidden
-          src={reslLogo.url}
-          alt=""
-          className="pointer-events-none absolute left-1/2 top-1/2 w-[30rem] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-[0.07] invert brightness-0 select-none"
-        />
+      <div className="relative hidden flex-col overflow-hidden bg-surface p-10 text-foreground lg:flex">
         {/* radial glow behind copy */}
         <div
           aria-hidden
@@ -125,11 +118,12 @@ function AuthPage() {
         />
 
         <div className="relative flex flex-1 flex-col items-center justify-center text-center">
+          <img src={reslLogo.url} alt="RESL logo" className="w-[22rem] max-w-full h-auto select-none" />
 
 
           <div className="mt-10 flex items-center justify-center gap-3">
             <span className="h-1 w-12 rounded-full bg-gold" />
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-shell-muted">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               Management Information System
             </p>
             <span className="h-1 w-12 rounded-full bg-gold" />
@@ -137,22 +131,17 @@ function AuthPage() {
           <h2 className="mt-5 max-w-md text-3xl leading-tight font-light">
             RESL MIS Portal — SAP reports, KPIs and analytics in one launchpad.
           </h2>
-          <p className="mt-4 max-w-md text-sm text-shell-muted">
+          <p className="mt-4 max-w-md text-sm text-muted-foreground">
             Role-based tiles, live KPIs and drill-down analytics across Sales, Finance, Quality,
             Production and more — delivered straight from your SAP landscape.
           </p>
         </div>
 
-        <p className="relative text-center text-xs text-shell-muted">RESL MIS Portal</p>
+        <p className="relative text-center text-xs text-muted-foreground">RESL MIS Portal</p>
       </div>
 
       {/* Right sign-in panel */}
       <div className="relative flex items-center justify-center bg-surface p-6">
-        <img
-          src={reslLogo.url}
-          alt="RESL logo"
-          className="absolute right-6 top-6 h-9 w-auto"
-        />
         <div className="w-full max-w-md">
           <div className="rounded-3xl bg-card-raised p-9 shadow-[var(--shadow-soft-card)] ring-1 ring-ink/5">
             <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">
