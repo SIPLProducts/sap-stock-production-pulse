@@ -17,17 +17,9 @@ import { Route as AuthenticatedAdminPermissionsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminRolesRouteImport } from './routes/_authenticated/admin/roles'
 import { Route as AuthenticatedAdminSapApiRouteImport } from './routes/_authenticated/admin/sap-api'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
-import { Route as AuthenticatedTablesIndexRouteImport } from './routes/_authenticated/tables/index'
-import { Route as AuthenticatedTablesTableKeyRouteImport } from './routes/_authenticated/tables/$tableKey'
 import { Route as AuthenticatedReportsFiVendorAgeingRouteImport } from './routes/_authenticated/reports/fi/vendor-ageing'
 import { Route as AuthenticatedReportsFiZfbl1nRouteImport } from './routes/_authenticated/reports/fi/zfbl1n'
-import { Route as AuthenticatedReportsInvCurrentStockRouteImport } from './routes/_authenticated/reports/inv/current-stock'
-import { Route as AuthenticatedReportsInvInventoryAgingRouteImport } from './routes/_authenticated/reports/inv/inventory-aging'
 import { Route as AuthenticatedReportsModuleModuleRouteImport } from './routes/_authenticated/reports/module.$module'
-import { Route as AuthenticatedReportsTablesSapMasterRouteImport } from './routes/_authenticated/reports/tables/sap-master'
-import { Route as AuthenticatedReportsTablesValuationSubgroupRouteImport } from './routes/_authenticated/reports/tables/valuation-subgroup'
-import { Route as AuthenticatedReportsTablesZpcGroupRouteImport } from './routes/_authenticated/reports/tables/zpc-group'
-import { Route as AuthenticatedReportsTablesZrmmatRouteImport } from './routes/_authenticated/reports/tables/zrmmat'
 import { Route as ApiPublicSapPullZfisalesRouteImport } from './routes/api/public/sap/pull/zfisales'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,18 +63,6 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/admin/users',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedTablesIndexRoute =
-  AuthenticatedTablesIndexRouteImport.update({
-    id: '/tables/',
-    path: '/tables/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedTablesTableKeyRoute =
-  AuthenticatedTablesTableKeyRouteImport.update({
-    id: '/tables/$tableKey',
-    path: '/tables/$tableKey',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedReportsFiVendorAgeingRoute =
   AuthenticatedReportsFiVendorAgeingRouteImport.update({
     id: '/reports/fi/vendor-ageing',
@@ -95,46 +75,10 @@ const AuthenticatedReportsFiZfbl1nRoute =
     path: '/reports/fi/zfbl1n',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedReportsInvCurrentStockRoute =
-  AuthenticatedReportsInvCurrentStockRouteImport.update({
-    id: '/reports/inv/current-stock',
-    path: '/reports/inv/current-stock',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsInvInventoryAgingRoute =
-  AuthenticatedReportsInvInventoryAgingRouteImport.update({
-    id: '/reports/inv/inventory-aging',
-    path: '/reports/inv/inventory-aging',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedReportsModuleModuleRoute =
   AuthenticatedReportsModuleModuleRouteImport.update({
     id: '/reports/module/$module',
     path: '/reports/module/$module',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsTablesSapMasterRoute =
-  AuthenticatedReportsTablesSapMasterRouteImport.update({
-    id: '/reports/tables/sap-master',
-    path: '/reports/tables/sap-master',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsTablesValuationSubgroupRoute =
-  AuthenticatedReportsTablesValuationSubgroupRouteImport.update({
-    id: '/reports/tables/valuation-subgroup',
-    path: '/reports/tables/valuation-subgroup',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsTablesZpcGroupRoute =
-  AuthenticatedReportsTablesZpcGroupRouteImport.update({
-    id: '/reports/tables/zpc-group',
-    path: '/reports/tables/zpc-group',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedReportsTablesZrmmatRoute =
-  AuthenticatedReportsTablesZrmmatRouteImport.update({
-    id: '/reports/tables/zrmmat',
-    path: '/reports/tables/zrmmat',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiPublicSapPullZfisalesRoute =
@@ -152,17 +96,9 @@ export interface FileRoutesByFullPath {
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/sap-api': typeof AuthenticatedAdminSapApiRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/tables/$tableKey': typeof AuthenticatedTablesTableKeyRoute
-  '/tables/': typeof AuthenticatedTablesIndexRoute
   '/reports/fi/vendor-ageing': typeof AuthenticatedReportsFiVendorAgeingRoute
   '/reports/fi/zfbl1n': typeof AuthenticatedReportsFiZfbl1nRoute
-  '/reports/inv/current-stock': typeof AuthenticatedReportsInvCurrentStockRoute
-  '/reports/inv/inventory-aging': typeof AuthenticatedReportsInvInventoryAgingRoute
   '/reports/module/$module': typeof AuthenticatedReportsModuleModuleRoute
-  '/reports/tables/sap-master': typeof AuthenticatedReportsTablesSapMasterRoute
-  '/reports/tables/valuation-subgroup': typeof AuthenticatedReportsTablesValuationSubgroupRoute
-  '/reports/tables/zpc-group': typeof AuthenticatedReportsTablesZpcGroupRoute
-  '/reports/tables/zrmmat': typeof AuthenticatedReportsTablesZrmmatRoute
   '/api/public/sap/pull/zfisales': typeof ApiPublicSapPullZfisalesRoute
 }
 export interface FileRoutesByTo {
@@ -173,17 +109,9 @@ export interface FileRoutesByTo {
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/sap-api': typeof AuthenticatedAdminSapApiRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/tables/$tableKey': typeof AuthenticatedTablesTableKeyRoute
-  '/tables': typeof AuthenticatedTablesIndexRoute
   '/reports/fi/vendor-ageing': typeof AuthenticatedReportsFiVendorAgeingRoute
   '/reports/fi/zfbl1n': typeof AuthenticatedReportsFiZfbl1nRoute
-  '/reports/inv/current-stock': typeof AuthenticatedReportsInvCurrentStockRoute
-  '/reports/inv/inventory-aging': typeof AuthenticatedReportsInvInventoryAgingRoute
   '/reports/module/$module': typeof AuthenticatedReportsModuleModuleRoute
-  '/reports/tables/sap-master': typeof AuthenticatedReportsTablesSapMasterRoute
-  '/reports/tables/valuation-subgroup': typeof AuthenticatedReportsTablesValuationSubgroupRoute
-  '/reports/tables/zpc-group': typeof AuthenticatedReportsTablesZpcGroupRoute
-  '/reports/tables/zrmmat': typeof AuthenticatedReportsTablesZrmmatRoute
   '/api/public/sap/pull/zfisales': typeof ApiPublicSapPullZfisalesRoute
 }
 export interface FileRoutesById {
@@ -196,17 +124,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/_authenticated/admin/sap-api': typeof AuthenticatedAdminSapApiRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
-  '/_authenticated/tables/$tableKey': typeof AuthenticatedTablesTableKeyRoute
-  '/_authenticated/tables/': typeof AuthenticatedTablesIndexRoute
   '/_authenticated/reports/fi/vendor-ageing': typeof AuthenticatedReportsFiVendorAgeingRoute
   '/_authenticated/reports/fi/zfbl1n': typeof AuthenticatedReportsFiZfbl1nRoute
-  '/_authenticated/reports/inv/current-stock': typeof AuthenticatedReportsInvCurrentStockRoute
-  '/_authenticated/reports/inv/inventory-aging': typeof AuthenticatedReportsInvInventoryAgingRoute
   '/_authenticated/reports/module/$module': typeof AuthenticatedReportsModuleModuleRoute
-  '/_authenticated/reports/tables/sap-master': typeof AuthenticatedReportsTablesSapMasterRoute
-  '/_authenticated/reports/tables/valuation-subgroup': typeof AuthenticatedReportsTablesValuationSubgroupRoute
-  '/_authenticated/reports/tables/zpc-group': typeof AuthenticatedReportsTablesZpcGroupRoute
-  '/_authenticated/reports/tables/zrmmat': typeof AuthenticatedReportsTablesZrmmatRoute
   '/api/public/sap/pull/zfisales': typeof ApiPublicSapPullZfisalesRoute
 }
 export interface FileRouteTypes {
@@ -219,17 +139,9 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/sap-api'
     | '/admin/users'
-    | '/tables/$tableKey'
-    | '/tables/'
     | '/reports/fi/vendor-ageing'
     | '/reports/fi/zfbl1n'
-    | '/reports/inv/current-stock'
-    | '/reports/inv/inventory-aging'
     | '/reports/module/$module'
-    | '/reports/tables/sap-master'
-    | '/reports/tables/valuation-subgroup'
-    | '/reports/tables/zpc-group'
-    | '/reports/tables/zrmmat'
     | '/api/public/sap/pull/zfisales'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -240,17 +152,9 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/sap-api'
     | '/admin/users'
-    | '/tables/$tableKey'
-    | '/tables'
     | '/reports/fi/vendor-ageing'
     | '/reports/fi/zfbl1n'
-    | '/reports/inv/current-stock'
-    | '/reports/inv/inventory-aging'
     | '/reports/module/$module'
-    | '/reports/tables/sap-master'
-    | '/reports/tables/valuation-subgroup'
-    | '/reports/tables/zpc-group'
-    | '/reports/tables/zrmmat'
     | '/api/public/sap/pull/zfisales'
   id:
     | '__root__'
@@ -262,17 +166,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/roles'
     | '/_authenticated/admin/sap-api'
     | '/_authenticated/admin/users'
-    | '/_authenticated/tables/$tableKey'
-    | '/_authenticated/tables/'
     | '/_authenticated/reports/fi/vendor-ageing'
     | '/_authenticated/reports/fi/zfbl1n'
-    | '/_authenticated/reports/inv/current-stock'
-    | '/_authenticated/reports/inv/inventory-aging'
     | '/_authenticated/reports/module/$module'
-    | '/_authenticated/reports/tables/sap-master'
-    | '/_authenticated/reports/tables/valuation-subgroup'
-    | '/_authenticated/reports/tables/zpc-group'
-    | '/_authenticated/reports/tables/zrmmat'
     | '/api/public/sap/pull/zfisales'
   fileRoutesById: FileRoutesById
 }
@@ -341,20 +237,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/tables/': {
-      id: '/_authenticated/tables/'
-      path: '/tables'
-      fullPath: '/tables/'
-      preLoaderRoute: typeof AuthenticatedTablesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/tables/$tableKey': {
-      id: '/_authenticated/tables/$tableKey'
-      path: '/tables/$tableKey'
-      fullPath: '/tables/$tableKey'
-      preLoaderRoute: typeof AuthenticatedTablesTableKeyRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/reports/fi/vendor-ageing': {
       id: '/_authenticated/reports/fi/vendor-ageing'
       path: '/reports/fi/vendor-ageing'
@@ -369,53 +251,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsFiZfbl1nRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/reports/inv/current-stock': {
-      id: '/_authenticated/reports/inv/current-stock'
-      path: '/reports/inv/current-stock'
-      fullPath: '/reports/inv/current-stock'
-      preLoaderRoute: typeof AuthenticatedReportsInvCurrentStockRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/inv/inventory-aging': {
-      id: '/_authenticated/reports/inv/inventory-aging'
-      path: '/reports/inv/inventory-aging'
-      fullPath: '/reports/inv/inventory-aging'
-      preLoaderRoute: typeof AuthenticatedReportsInvInventoryAgingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/reports/module/$module': {
       id: '/_authenticated/reports/module/$module'
       path: '/reports/module/$module'
       fullPath: '/reports/module/$module'
       preLoaderRoute: typeof AuthenticatedReportsModuleModuleRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/tables/sap-master': {
-      id: '/_authenticated/reports/tables/sap-master'
-      path: '/reports/tables/sap-master'
-      fullPath: '/reports/tables/sap-master'
-      preLoaderRoute: typeof AuthenticatedReportsTablesSapMasterRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/tables/valuation-subgroup': {
-      id: '/_authenticated/reports/tables/valuation-subgroup'
-      path: '/reports/tables/valuation-subgroup'
-      fullPath: '/reports/tables/valuation-subgroup'
-      preLoaderRoute: typeof AuthenticatedReportsTablesValuationSubgroupRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/tables/zpc-group': {
-      id: '/_authenticated/reports/tables/zpc-group'
-      path: '/reports/tables/zpc-group'
-      fullPath: '/reports/tables/zpc-group'
-      preLoaderRoute: typeof AuthenticatedReportsTablesZpcGroupRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports/tables/zrmmat': {
-      id: '/_authenticated/reports/tables/zrmmat'
-      path: '/reports/tables/zrmmat'
-      fullPath: '/reports/tables/zrmmat'
-      preLoaderRoute: typeof AuthenticatedReportsTablesZrmmatRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/sap/pull/zfisales': {
@@ -434,17 +274,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRolesRoute: typeof AuthenticatedAdminRolesRoute
   AuthenticatedAdminSapApiRoute: typeof AuthenticatedAdminSapApiRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
-  AuthenticatedTablesTableKeyRoute: typeof AuthenticatedTablesTableKeyRoute
-  AuthenticatedTablesIndexRoute: typeof AuthenticatedTablesIndexRoute
   AuthenticatedReportsFiVendorAgeingRoute: typeof AuthenticatedReportsFiVendorAgeingRoute
   AuthenticatedReportsFiZfbl1nRoute: typeof AuthenticatedReportsFiZfbl1nRoute
-  AuthenticatedReportsInvCurrentStockRoute: typeof AuthenticatedReportsInvCurrentStockRoute
-  AuthenticatedReportsInvInventoryAgingRoute: typeof AuthenticatedReportsInvInventoryAgingRoute
   AuthenticatedReportsModuleModuleRoute: typeof AuthenticatedReportsModuleModuleRoute
-  AuthenticatedReportsTablesSapMasterRoute: typeof AuthenticatedReportsTablesSapMasterRoute
-  AuthenticatedReportsTablesValuationSubgroupRoute: typeof AuthenticatedReportsTablesValuationSubgroupRoute
-  AuthenticatedReportsTablesZpcGroupRoute: typeof AuthenticatedReportsTablesZpcGroupRoute
-  AuthenticatedReportsTablesZrmmatRoute: typeof AuthenticatedReportsTablesZrmmatRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -453,23 +285,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRolesRoute: AuthenticatedAdminRolesRoute,
   AuthenticatedAdminSapApiRoute: AuthenticatedAdminSapApiRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
-  AuthenticatedTablesTableKeyRoute: AuthenticatedTablesTableKeyRoute,
-  AuthenticatedTablesIndexRoute: AuthenticatedTablesIndexRoute,
   AuthenticatedReportsFiVendorAgeingRoute:
     AuthenticatedReportsFiVendorAgeingRoute,
   AuthenticatedReportsFiZfbl1nRoute: AuthenticatedReportsFiZfbl1nRoute,
-  AuthenticatedReportsInvCurrentStockRoute:
-    AuthenticatedReportsInvCurrentStockRoute,
-  AuthenticatedReportsInvInventoryAgingRoute:
-    AuthenticatedReportsInvInventoryAgingRoute,
   AuthenticatedReportsModuleModuleRoute: AuthenticatedReportsModuleModuleRoute,
-  AuthenticatedReportsTablesSapMasterRoute:
-    AuthenticatedReportsTablesSapMasterRoute,
-  AuthenticatedReportsTablesValuationSubgroupRoute:
-    AuthenticatedReportsTablesValuationSubgroupRoute,
-  AuthenticatedReportsTablesZpcGroupRoute:
-    AuthenticatedReportsTablesZpcGroupRoute,
-  AuthenticatedReportsTablesZrmmatRoute: AuthenticatedReportsTablesZrmmatRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Home, LogOut, Maximize, Minimize, Moon, Settings, Sparkles, Sun, User } from "lucide-react";
+import { Home, LogOut, Maximize, Minimize, Moon, Settings, Sparkles, Sun, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -115,14 +115,6 @@ export function ShellBar({
         >
           <Home className="size-[18px]" />
         </Link>
-        <button
-          type="button"
-          aria-label="Notifications"
-          className={`rounded-full transition-colors hover:bg-primary/10 hover:text-primary ${launchpad ? "inline-flex items-center gap-1 px-2 py-1 text-[10px]" : "hidden p-2 sm:inline-flex"}`}
-        >
-          <Bell className={launchpad ? "size-3.5" : "size-[18px]"} />
-          {launchpad ? <span className="hidden sm:inline">Alerts</span> : null}
-        </button>
         <SidebarTrigger aria-label="Toggle menu" className="shrink-0 rounded-lg text-muted-foreground hover:bg-primary/10 hover:text-primary" />
         {launchpad ? (
           <button type="button" aria-label="Settings" className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] transition-colors hover:bg-primary/10 hover:text-primary">

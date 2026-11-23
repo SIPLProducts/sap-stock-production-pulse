@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Boxes, ChevronRight, Home, Landmark, Settings2, Table2 } from "lucide-react";
+import { Boxes, ChevronRight, Home, Landmark, Settings2 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton,
   SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, useSidebar,
@@ -12,17 +12,11 @@ import { useLaunchpad } from "@/lib/use-launchpad";
 const SCREEN_PATHS = {
   "fi.vendor-ageing": "/reports/fi/vendor-ageing",
   "fi.zfbl1n": "/reports/fi/zfbl1n",
-  "inv.current-stock": "/reports/inv/current-stock",
-  "inv.inventory-aging": "/reports/inv/inventory-aging",
-  "tables.sap-master": "/reports/tables/sap-master",
-  "tables.zrmmat": "/reports/tables/zrmmat",
-  "tables.zpc-group": "/reports/tables/zpc-group",
-  "tables.valuation-subgroup": "/reports/tables/valuation-subgroup",
 } as const;
 type ScreenPath = (typeof SCREEN_PATHS)[keyof typeof SCREEN_PATHS];
 const pathFor = (k: string): ScreenPath | undefined => (SCREEN_PATHS as Record<string, ScreenPath>)[k];
 
-const ICONS: Record<string, typeof Home> = { "financial-accounting": Landmark, inventory: Boxes, "tables-master": Table2 };
+const ICONS: Record<string, typeof Home> = { "financial-accounting": Landmark };
 
 export function AppSidebar() {
   const { data } = useLaunchpad();

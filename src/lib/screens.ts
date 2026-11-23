@@ -49,27 +49,6 @@ export const PERMISSION_MODULES: PermissionModule[] = [
       { key: "fi.zfbl1n", label: "ZFBL1N", tileKey: "fi_zfbl1n" },
     ],
   },
-  {
-    key: "module.inv",
-    label: "Inventory",
-    groupKey: "inventory",
-    children: [
-      { key: "inv.current-stock", label: "Current Stock", tileKey: "inv_current_stock" },
-      { key: "inv.inventory-aging", label: "Inventory Aging", tileKey: "inv_inventory_aging" },
-    ],
-  },
-
-  {
-    key: groupScreenKey(TABLES_MASTER_GROUP_KEY),
-    label: "Tables Master",
-    groupKey: TABLES_MASTER_GROUP_KEY,
-    children: [
-      { key: "tables.sap-master", label: "SAP MASTER", tileKey: "table_sap_master" },
-      { key: "tables.zrmmat", label: "ZKEYRM", tileKey: "table_zrmmat" },
-      { key: "tables.zpc-group", label: "ZPC GROUP", tileKey: "table_zpc_group" },
-      { key: "tables.valuation-subgroup", label: "Valuation Class Wise Subgroup", tileKey: "table_valuation_subgroup" },
-    ],
-  },
 ];
 
 export const MODULE_CHILD_SCREENS = PERMISSION_MODULES.flatMap((module) => module.children);

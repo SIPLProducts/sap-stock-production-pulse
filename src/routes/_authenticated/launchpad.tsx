@@ -57,7 +57,7 @@ function Launchpad() {
   const [activeGroup, setActiveGroup] = useState("all");
   const { open: menuOpen, isMobile } = useSidebar();
   const showTabs = isMobile || !menuOpen;
-  const groups = useMemo(() => data ? orderGroupsForRoles(data.groups.filter((group) => data.tiles.some((tile) => tile.group_key === group.key)), data.roles) : [], [data]);
+  const groups = useMemo(() => data ? orderGroupsForRoles(data.groups.filter((group) => !["inventory", "tables-master"].includes(group.key) && data.tiles.some((tile) => tile.group_key === group.key)), data.roles) : [], [data]);
   const role = primaryRole(data?.roles);
   const visibleGroups = activeGroup === "all" ? groups : groups.filter((group) => group.key === activeGroup);
 
