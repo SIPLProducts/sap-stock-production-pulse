@@ -354,6 +354,8 @@ async function callSap({ traceId, system, path, method = "GET", query, headers =
       const parsed = JSON.parse(text);
       const rows = Array.isArray(parsed)
         ? parsed.length
+        : Array.isArray(parsed?.DATA)
+          ? parsed.DATA.length
         : Array.isArray(parsed?.d?.results)
           ? parsed.d.results.length
           : Array.isArray(parsed?.results)

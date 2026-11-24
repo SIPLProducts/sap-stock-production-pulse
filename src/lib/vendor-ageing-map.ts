@@ -62,6 +62,8 @@ export function sapIsoDate(v: unknown): string | null {
 /** Every Vendor Ageing sync calls SAP once per basis, in this order; each row stores its basis label in pc_text. */
 export const VA_BASES = [["R1", "Due Date"], ["R2", "Posting Date"], ["R3", "GRN Date"]] as const;
 export type VaBasisKey = (typeof VA_BASES)[number][0];
+/** Progress text saved on the running sync row, e.g. "Posting Date (2/3)". */
+export function vendorAgeingStepLabel(label: string, index: number) { return `${label} (${index + 1}/${VA_BASES.length})`; }
 
 /** Sets exactly one of R1/R2/R3 to "X" for the given basis call. */
 export function withVendorAgeingBasis(raw: string | undefined, key: VaBasisKey): string | undefined {
@@ -71,4 +73,14 @@ export function withVendorAgeingBasis(raw: string | undefined, key: VaBasisKey):
     for (const k of ["R1", "R2", "R3"]) obj[k] = k === key ? "X" : "";
     return JSON.stringify(obj);
   } catch { return raw; }
+}
+
+/** 52k-row snapshots: 2,000-row batches, 4 in flight, instead of one 500-row batch at a time. */
+export async function insertVendorAgeingChunks<T>(rows: T[], insert: (chunk: T[]) => Promise<void>, size = 2000, concurrency = 4): Promise<void> {
+  const chunks: T[][] = [];
+  for (let i = 0; i < rows.length; i += size) chunks.push(rows.slice(i, i + size));
+  let next = 0;
+  await Promise.all(Array.from({ length: Math.min(concurrency, chunks.length) }, async () => {
+    while (next < chunks.length) await insert(chunks[next++]!);
+  }));
 }

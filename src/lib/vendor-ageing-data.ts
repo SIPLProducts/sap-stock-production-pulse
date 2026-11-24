@@ -111,7 +111,21 @@ export function rebucketByBasis(rows: VaRow[], basis: VaBasis, keyDate: string):
 
 /** Stored SAP basis, never recalculated dates. Untagged older rows remain visible only with All. */
 export function filterVendorAgeingBasis(rows: VaRow[], basis: VaBasis): VaRow[] {
-  if (basis === "all") return rows;
+  if (basis === "all") {
+    // Newest tagged snapshot only, so old untagged rows never add to a sync in progress.
+    let latest = "";
+    for (const r of rows) if (r.pcText && r.syncedAt > latest) latest = r.syncedAt;
+    return latest ? rows.filter((r) => r.syncedAt === latest) : rows;
+  }
   const label = { due: "Due Date", post: "Posting Date", grn: "GRN Date" }[basis];
   return rows.filter((r) => r.pcText === label);
 }
+
+/** Running step of a Vendor Ageing sync ("Posting Date (2/3)"), read only on load/Refresh. */
+export async function getVendorAgeingSyncStep(): Promise<string | null> {
+  const since = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+  const { data } = await supabase.from("sap_sync_runs").select("error_message").eq("endpoint", "Vendor_Ageing").eq("status", "running").gte("started_at", since).order("started_at", { ascending: false }).limit(5);
+  const list = (data ?? []) as { error_message?: string | null }[];
+  return list.map((r) => r.error_message ?? "").find((m) => /\(\d\/3\)/.test(m)) ?? (list.length ? "Sync running" : null);
+}
+export const vendorAgeingSyncStepQuery = queryOptions({ queryKey: ["vendor-ageing", "v2-basis", "sync-step"], queryFn: getVendorAgeingSyncStep, staleTime: Infinity, refetchOnWindowFocus: false });

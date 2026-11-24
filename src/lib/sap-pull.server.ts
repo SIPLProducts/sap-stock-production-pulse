@@ -5,7 +5,7 @@
  */
 import { isUserDropdownEndpoint, mapUserDropdownPayload } from "./user-dropdown-map";
 import { isCurrentStockEndpoint, mapCurrentStockPayload } from "./current-stock-map";
-import { isVendorAgeingEndpoint, mapVendorAgeingPayload, VA_BASES, withVendorAgeingBasis, type VaBasisKey } from "./vendor-ageing-map";
+import { isVendorAgeingEndpoint, mapVendorAgeingPayload, VA_BASES, insertVendorAgeingChunks, vendorAgeingStepLabel, withVendorAgeingBasis, type VaBasisKey } from "./vendor-ageing-map";
 import { isZfbl1nEndpoint, mapZfbl1nPayload } from "./zfbl1n-map";
 import {
   extractEmbeddedBody,
@@ -139,10 +139,10 @@ export async function storeVendorAgeingPayload(
   const syncedAt = rows[0]?.["synced_at"] as string | undefined;
   try {
     if (va.key && (!rows.length || invalid > 0)) throw new Error(`${va.label}: SAP returned empty or invalid data; previous data retained`);
-    for (let i = 0; i < rows.length; i += BATCH) {
-      const { error } = await db.from("vendor_ageing" as never).insert(rows.slice(i, i + BATCH) as never);
+    await insertVendorAgeingChunks(rows, async (chunk) => {
+      const { error } = await db.from("vendor_ageing" as never).insert(chunk as never);
       if (error) throw error;
-    }
+    });
     // Full snapshot: once the new rows are all in, older snapshots are removed. Empty replies keep existing data.
     let removed = 0;
     // Older snapshots go only after the last basis call (GRN) of a successful three-call sync.
@@ -259,8 +259,16 @@ export async function pullSapEndpoint(
     let last: PullResult | null = null;
     let stored = 0, received = 0, invalid = 0, replaced = 0;
     try {
-    for (const [key, label] of VA_BASES) {
-      last = await pullSapEndpoint(endpointName, { ...options, va: { key, label, syncedAt, final: key === "R3" } });
+    const db0 = await admin();
+    // A step left "running" by an interrupted sync is closed so it never looks live.
+    await db0.from("sap_sync_runs").update({ status: "error", finished_at: syncedAt, error_message: "Interrupted before finishing" }).eq("endpoint", endpointName).eq("status", "running").lt("started_at", syncedAt);
+    for (const [index, [key, label]] of VA_BASES.entries()) {
+      const { data: step } = await db0.from("sap_sync_runs").insert({ endpoint: endpointName, status: "running", started_at: new Date().toISOString(), error_message: vendorAgeingStepLabel(label, index) }).select("id").single();
+      try {
+        last = await pullSapEndpoint(endpointName, { ...options, va: { key, label, syncedAt, final: key === "R3" } });
+      } finally {
+        if (step?.id) await db0.from("sap_sync_runs").delete().eq("id", step.id);
+      }
       if (last.status !== "synced") {
         const db = await admin();
         await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);

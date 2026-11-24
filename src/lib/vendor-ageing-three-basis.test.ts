@@ -41,3 +41,26 @@ describe("stored basis totals", () => {
     expect(filterVendorAgeingBasis(old, "all")).toHaveLength(1);
   });
 });
+
+describe("Vendor Ageing save speed and in-progress display", () => {
+  it("saves 52,373 rows in 2,000-row batches with at most 4 at once", async () => {
+    const { insertVendorAgeingChunks } = await import("./vendor-ageing-map");
+    const rows = Array.from({ length: 52373 }, (_, i) => i);
+    const sizes: number[] = []; let live = 0, peak = 0;
+    await insertVendorAgeingChunks(rows, async (c) => { live++; peak = Math.max(peak, live); sizes.push(c.length); await new Promise((r) => setTimeout(r, 1)); live--; });
+    expect(sizes).toHaveLength(27);
+    expect(Math.max(...sizes)).toBe(2000);
+    expect(sizes.reduce((a, b) => a + b, 0)).toBe(52373);
+    expect(peak).toBe(4);
+  });
+  it("All shows only the newest tagged sync, not old untagged rows on top", () => {
+    const old = toVaRow({ lifnr: "1", wrbtr: -100, synced_at: "2026-11-23T16:15:45Z" });
+    const due = toVaRow({ lifnr: "1", wrbtr: -100, pc_text: "Due Date", synced_at: "2026-11-24T11:04:20Z" });
+    expect(filterVendorAgeingBasis([old, due], "all")).toEqual([due]);
+    expect(filterVendorAgeingBasis([old], "all")).toEqual([old]);
+  });
+  it("labels progress steps as n/3", async () => {
+    const { vendorAgeingStepLabel } = await import("./vendor-ageing-map");
+    expect(vendorAgeingStepLabel("Posting Date", 1)).toBe("Posting Date (2/3)");
+  });
+});

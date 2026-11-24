@@ -31,6 +31,8 @@ import {
 } from "./sync-core.mjs";
 
 const BATCH = 500;
+const VA_BATCH = 2000;
+const VA_CONCURRENCY = 4;
 const PROGRESS_EVERY = 5000;
 const RUN_HISTORY_LIMIT = 6;
 /** A run older than this is treated as dead, so a crash cannot block forever. */
@@ -137,7 +139,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
     }
   }
 
-  async function startRun(endpoint, snapshot) {
+  async function startRun(endpoint, snapshot, progress = null) {
     const { data } = await db
       .from("sap_sync_runs")
       .insert({
@@ -145,6 +147,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         status: "running",
         started_at: new Date().toISOString(),
         request_snapshot: snapshot ?? null,
+        ...(progress ? { error_message: progress } : {}),
       })
       .select("id")
       .single();
@@ -200,10 +203,18 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
     if (isVendorAgeingEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint, va ? new Date(va.syncedAt) : new Date(), va?.label ?? null);
       if (va && (!rows.length || invalid > 0)) throw new Error(`${va.label}: SAP returned empty or invalid data; previous data retained`);
-      for (let i = 0; i < rows.length; i += BATCH) {
-        const { error } = await db.from("vendor_ageing").insert(rows.slice(i, i + BATCH));
-        if (error) { await db.from("vendor_ageing").delete().eq("synced_at", rows[0].synced_at); throw new Error(error.message); }
-      }
+      // 2,000-row batches, 4 in flight: a 52k-row reply saves in well under a minute.
+      const chunks = [];
+      for (let i = 0; i < rows.length; i += VA_BATCH) chunks.push(rows.slice(i, i + VA_BATCH));
+      let next = 0;
+      try {
+        await Promise.all(Array.from({ length: Math.min(VA_CONCURRENCY, chunks.length) }, async () => {
+          while (next < chunks.length) {
+            const { error } = await db.from("vendor_ageing").insert(chunks[next++]);
+            if (error) throw new Error(error.message);
+          }
+        }));
+      } catch (err) { await db.from("vendor_ageing").delete().eq("synced_at", rows[0].synced_at); throw err; }
       let removed = 0;
       // Older snapshots go only after the final (GRN) call of a three-call sync.
       if (rows.length && (!va || va.final)) {
@@ -249,8 +260,8 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
     if (!opts.manual && (await runInProgress(endpointName))) return { status: "skipped", reason: "A previous run is still in progress" };
     const syncedAt = new Date().toISOString();
     let last = null, stored = 0, received = 0, invalid = 0, replaced = 0;
-    for (const [key, label] of VA_BASES) {
-      last = await runEndpointOnce(endpointName, { ...opts, manual: true, scheduledBody: !opts.manual, va: { key, label, syncedAt, final: key === "R3" } });
+    for (const [index, [key, label]] of VA_BASES.entries()) {
+      last = await runEndpointOnce(endpointName, { ...opts, manual: true, scheduledBody: !opts.manual, va: { key, label, syncedAt, step: index + 1, final: key === "R3" } });
       if (last.status !== "synced") {
         await db.from("vendor_ageing").delete().eq("synced_at", syncedAt);
         return last.status === "error" ? { ...last, message: `${label} call failed: ${last.message}` } : last;
@@ -325,7 +336,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         headers: keyValueObject(endpoint.headers),
         body: bodyText ?? null,
       };
-      runId = await startRun(endpointName, snapshot);
+      runId = await startRun(endpointName, snapshot, va ? `${va.label} (${va.step}/${VA_BASES.length})` : null);
 
       const result = await callSap({
         traceId,
