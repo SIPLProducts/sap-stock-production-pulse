@@ -216,3 +216,5 @@
 - [x] Implement Vendor Ageing R1/R2/R3 sync, persisted basis/filter/Excel, Due Date launchpad totals, and deployment SQL mirrors; verified database column, 39 tests, and clean preview build.
 - [ ] Verify Vendor Ageing against live SAP and the signed-in report: current test account has no report permission; live SAP sync not exercised.
 - [ ] Quality/Production: apply vendor-ageing-pc-text.sql and deploy updated frontend, sync-core.mjs and scheduler.mjs; remote deployment access unavailable.
+- [x] Simplify Vendor Ageing request inputs to a current-IST-date S_KDATE picker and preserve custom dates/full three-basis payloads; 24 tests and preview build pass.
+- [ ] Verify the Vendor Ageing date picker through the signed-in form; requester account lacks SAP API Settings permission.

@@ -31,7 +31,7 @@
 - Backfill new typed SAP monetary columns from raw rows with the mapper's numeric normalization before switching reads; retain earlier columns independently to support additive deployment.
 - Auth state changes invalidate queries only when the signed-in user id changes (sign-out clears cache), because Supabase re-emits SIGNED_IN on tab focus. The Cash Flow launchpad card shares the Cash Flow screen query so both change only on explicit Refresh/Sync.
 - User Management dropdown masters (plants, profit centers) upsert into public.sap_user_dropdown_masters on category + code without snapshots, since SAP returns the full current master list.
-- SAP API Settings builds request fields from the pasted payload (`//` lines = optional keys stripped before sending) via pure helpers in payload-fields.ts, so new APIs need no bespoke form.
+- SAP API Settings builds generic request fields via payload-fields.ts; Vendor Ageing exposes only S_KDATE through vendor-ageing-request.ts while retaining the full template, so hidden constants and sequential basis flags remain intact.
 
 - Import the shared logo CDN pointer in portal and PDF headers, preserving its original colors; one asset keeps branding consistent across screens.
 - Vendor Ageing sync calls R1, R2, R3 sequentially, tagging pc_text with the SAP request basis and sharing synced_at; replace older rows only after all three non-empty valid replies are saved, rollback the new rows on failure, and default screen/launchpad totals to Due Date to avoid counting three response sets together.

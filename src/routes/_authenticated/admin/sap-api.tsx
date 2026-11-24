@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { applyDateWindow, buildPayloadText, parsePayloadFields, stripJsonComments } from "@/lib/payload-fields";
 import { getPayloadPath, setPayloadPaths } from "@/lib/payload-paths";
+import { isVendorAgeingEndpoint } from "@/lib/vendor-ageing-map";
+import { vendorAgeingRequest } from "@/lib/vendor-ageing-request";
 const dprIso = (d: string) => (/^\d{8}$/.test(d) ? `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}` : d);
 // Retired report endpoints (their screens were removed); kept as no-op checks so the form stays generic.
 const isOpenPoEndpoint = (_name: string) => false;
@@ -801,6 +803,9 @@ function toInput(endpoint: SapEndpoint): EndpointInput {
  * missing/invalid values default to To = today, From = today − 7 days.
  */
 function withDefaultDates(input: EndpointInput): EndpointInput {
+  if (isVendorAgeingEndpoint(input.name) || isVendorAgeingEndpoint(input.endpoint_path)) {
+    return { ...input, body_template: vendorAgeingRequest(input.body_template), posting_range: "custom" };
+  }
   if (isZcashFlowName(input.name) || isZcashFlowName(input.endpoint_path)) return input;
   if (isOrderBookName(input.name) || isOrderBookName(input.endpoint_path)) return input;
   if (isSitEndpoint(input.name) || isSitEndpoint(input.endpoint_path)) return input;
@@ -1150,11 +1155,12 @@ function EndpointDetail({
   const isZcash = !isOrderBook && (isZcashFlowName(form.name) || isZcashFlowName(form.endpoint_path));
   const isSit = isSitEndpoint(form.name) || isSitEndpoint(form.endpoint_path);
   const isDpr = isDailyProductionEndpoint(form.name) || isDailyProductionEndpoint(form.endpoint_path);
+  const isVendorAgeing = isVendorAgeingEndpoint(form.name) || isVendorAgeingEndpoint(form.endpoint_path);
   const usesPostingDates =
     isDpr || isOpenPoEndpoint(form.name) || isOpenPoEndpoint(form.endpoint_path) ||
     isPurchaseOrdersEndpoint(form.name) || isPurchaseOrdersEndpoint(form.endpoint_path) ||
     form.posting_range !== "custom" || !!payload?.["BUDAT_F"] || !!payload?.["BUDAT_T"];
-  const usesPayloadFields = !isZcash && !isOpenSalesOrders && (isOrderBook || isSit || /salesregister/i.test(`${form.name}${form.endpoint_path}`.replace(/[^a-z0-9]/gi, "")) || !usesPostingDates);
+  const usesPayloadFields = !isVendorAgeing && !isZcash && !isOpenSalesOrders && (isOrderBook || isSit || /salesregister/i.test(`${form.name}${form.endpoint_path}`.replace(/[^a-z0-9]/gi, "")) || !usesPostingDates);
   const requestDate = dateFromSapValue(payload?.["fkdat"] ?? "") ?? new Date();
   const payloadInvalid = form.body_template.trim().length > 0 && payload === null;
 
@@ -1367,6 +1373,25 @@ function EndpointDetail({
 
         <TabsContent value="request">
           <div className="space-y-5 rounded-md border border-border bg-card p-5 shadow-tile">
+            {isVendorAgeing ? (
+              <div className="max-w-sm">
+                <Field label="S_KDATE">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button type="button" variant="outline" aria-label="S_KDATE" className="w-full justify-start text-left font-normal">
+                        <CalendarIcon className="size-4" />
+                        {format(dateFromSapValue(payload?.["S_KDATE"] ?? "") ?? new Date(), "dd-MM-yyyy")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={dateFromSapValue(payload?.["S_KDATE"] ?? "") ?? new Date()}
+                        onSelect={(date) => { if (date) set("body_template", vendorAgeingRequest(form.body_template, sapValueFromDate(date))); }}
+                        initialFocus className="pointer-events-auto p-3" />
+                    </PopoverContent>
+                  </Popover>
+                </Field>
+              </div>
+            ) : null}
             {usesPayloadFields ? (
               <PayloadRequestFields
                 value={form.body_template}
@@ -1378,7 +1403,7 @@ function EndpointDetail({
             {isZcash ? (
               <ZcashFlowRequestFields value={form.body_template} onChange={(v) => set("body_template", v)} />
             ) : null}
-            {!isZcash && !usesPayloadFields && (isOpenSalesOrders || usesPostingDates) ? (
+            {!isVendorAgeing && !isZcash && !usesPayloadFields && (isOpenSalesOrders || usesPostingDates) ? (
             <div className="grid gap-4 md:grid-cols-3">
               {isOpenSalesOrders ? (
                 <Field label="Request Date" hint="Sent as fkdat (YYYYMMDD).">
