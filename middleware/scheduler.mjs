@@ -201,6 +201,22 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
       return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "zfbl1n_items", snapshotId: null, postingFrom: null, postingTo: null };
     }
     if (isVendorAgeingEndpoint(endpoint)) {
+      // One delete of a 52k+ line snapshot exceeds the database's 8-second limit, so lines go 1,000 at a time.
+      const purge = async (where) => {
+        let total = 0;
+        for (;;) {
+          let q = db.from("vendor_ageing").select("id");
+          q = where.before ? q.lt("synced_at", where.before) : q.eq("synced_at", where.at);
+          const { data, error } = await q.order("id").limit(1000);
+          if (error) throw new Error(`Vendor Ageing cleanup failed: ${error.message}`);
+          const ids = (data ?? []).map((r) => r.id);
+          if (!ids.length) return total;
+          const del = await db.from("vendor_ageing").delete().in("id", ids);
+          if (del.error) throw new Error(`Vendor Ageing cleanup failed: ${del.error.message}`);
+          total += ids.length;
+          if (ids.length < 1000) return total;
+        }
+      };
       const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint, va ? new Date(va.syncedAt) : new Date(), va?.label ?? null);
       if (va && (!rows.length || invalid > 0)) throw new Error(`${va.label}: SAP returned empty or invalid data; previous data retained`);
       // 2,000-row batches, 4 in flight: a 52k-row reply saves in well under a minute.
@@ -214,13 +230,11 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
             if (error) throw new Error(error.message);
           }
         }));
-      } catch (err) { await db.from("vendor_ageing").delete().eq("synced_at", rows[0].synced_at); throw err; }
+      } catch (err) { await purge({ at: rows[0].synced_at }).catch(() => 0); throw err; }
       let removed = 0;
       // Older snapshots go only after the final (GRN) call of a three-call sync.
       if (rows.length && (!va || va.final)) {
-        const { count, error } = await db.from("vendor_ageing").delete({ count: "exact" }).lt("synced_at", rows[0].synced_at);
-        if (error) throw new Error(error.message);
-        removed = count ?? 0;
+        removed = await purge({ before: rows[0].synced_at });
       }
       return { received, stored: rows.length, replaced: removed, skipped: 0, invalid, duplicates, syncScopeKey: "vendor_ageing", snapshotId: null, postingFrom: null, postingTo: null };
     }
@@ -263,7 +277,14 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
     for (const [index, [key, label]] of VA_BASES.entries()) {
       last = await runEndpointOnce(endpointName, { ...opts, manual: true, scheduledBody: !opts.manual, va: { key, label, syncedAt, step: index + 1, final: key === "R3" } });
       if (last.status !== "synced") {
-        await db.from("vendor_ageing").delete().eq("synced_at", syncedAt);
+        // Roll back this sync's lines 1,000 at a time (a single delete exceeds the 8-second limit).
+        for (;;) {
+          const { data } = await db.from("vendor_ageing").select("id").eq("synced_at", syncedAt).order("id").limit(1000);
+          const ids = (data ?? []).map((r) => r.id);
+          if (!ids.length) break;
+          const { error } = await db.from("vendor_ageing").delete().in("id", ids);
+          if (error || ids.length < 1000) break;
+        }
         return last.status === "error" ? { ...last, message: `${label} call failed: ${last.message}` } : last;
       }
       stored += last.stored; received += last.received; invalid += last.invalid; replaced += last.replaced;

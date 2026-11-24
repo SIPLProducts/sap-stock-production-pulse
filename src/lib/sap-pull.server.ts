@@ -5,7 +5,7 @@
  */
 import { isUserDropdownEndpoint, mapUserDropdownPayload } from "./user-dropdown-map";
 import { isCurrentStockEndpoint, mapCurrentStockPayload } from "./current-stock-map";
-import { isVendorAgeingEndpoint, mapVendorAgeingPayload, VA_BASES, insertVendorAgeingChunks, vendorAgeingStepLabel, withVendorAgeingBasis, type VaBasisKey } from "./vendor-ageing-map";
+import { isVendorAgeingEndpoint, mapVendorAgeingPayload, VA_BASES, insertVendorAgeingChunks, deleteVendorAgeingInBatches, vendorAgeingStepLabel, withVendorAgeingBasis, type VaBasisKey } from "./vendor-ageing-map";
 import { isZfbl1nEndpoint, mapZfbl1nPayload } from "./zfbl1n-map";
 import {
   extractEmbeddedBody,
@@ -116,6 +116,21 @@ export async function storeCurrentStockPayload(
 
 type VaCall = { key?: VaBasisKey; label?: string; syncedAt?: string; final?: boolean };
 
+/** Deletes Vendor Ageing lines older than (`before`) or exactly at (`at`) a sync time, in small batches. */
+async function purgeVendorAgeing(db: Awaited<ReturnType<typeof admin>>, where: { before?: string; at?: string }): Promise<number> {
+  const table = () => db.from("vendor_ageing" as never);
+  return deleteVendorAgeingInBatches(async (limit) => {
+    let q = table().select("id");
+    q = where.before ? q.lt("synced_at", where.before) : q.eq("synced_at", where.at!);
+    const { data, error } = await q.order("id").limit(limit);
+    if (error) throw new Error(`Vendor Ageing cleanup failed: ${error.message}`);
+    return ((data ?? []) as Array<{ id: number }>).map((r) => r.id);
+  }, async (ids) => {
+    const { error } = await table().delete().in("id", ids);
+    if (error) throw new Error(`Vendor Ageing cleanup failed: ${error.message}`);
+  });
+}
+
 export async function storeVendorAgeingPayload(
   payload: unknown,
   endpointName: string,
@@ -141,20 +156,18 @@ export async function storeVendorAgeingPayload(
     if (va.key && (!rows.length || invalid > 0)) throw new Error(`${va.label}: SAP returned empty or invalid data; previous data retained`);
     await insertVendorAgeingChunks(rows, async (chunk) => {
       const { error } = await db.from("vendor_ageing" as never).insert(chunk as never);
-      if (error) throw error;
+      if (error) throw new Error(`Vendor Ageing save failed: ${error.message}`);
     });
     // Full snapshot: once the new rows are all in, older snapshots are removed. Empty replies keep existing data.
     let removed = 0;
     // Older snapshots go only after the last basis call (GRN) of a successful three-call sync.
     if (rows.length && syncedAt && va.final !== false) {
-      const { count, error } = await db.from("vendor_ageing" as never).delete({ count: "exact" }).lt("synced_at", syncedAt);
-      if (error) throw error;
-      removed = count ?? 0;
+      removed = await purgeVendorAgeing(db, { before: syncedAt });
     }
     await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${va.label ? va.label + ": " : ""}${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
     return { ...base, replaced: removed, stored: rows.length };
   } catch (err) {
-    if (syncedAt) await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);
+    if (syncedAt) await purgeVendorAgeing(db, { at: syncedAt }).catch(() => 0);
     await finish({ status: "error", error_message: err instanceof Error ? err.message : "Vendor Ageing write failed" });
     throw err;
   }
@@ -271,7 +284,7 @@ export async function pullSapEndpoint(
       }
       if (last.status !== "synced") {
         const db = await admin();
-        await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);
+        await purgeVendorAgeing(db, { at: syncedAt }).catch(() => 0);
         return last.status === "error" ? { ...last, message: `${label} call failed: ${last.message}` } : last;
       }
       stored += last.stored; received += last.received; invalid += last.invalid; replaced += last.replaced;
@@ -280,7 +293,7 @@ export async function pullSapEndpoint(
     return { ...last, stored, received, invalid, replaced };
     } catch (error) {
       const db = await admin();
-      await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);
+      await purgeVendorAgeing(db, { at: syncedAt }).catch(() => 0);
       const message = error instanceof Error ? error.message : "Vendor Ageing sync failed";
       await logFailure(endpointName, message);
       return { status: "error", message };

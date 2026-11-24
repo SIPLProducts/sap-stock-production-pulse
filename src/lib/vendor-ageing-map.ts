@@ -84,3 +84,22 @@ export async function insertVendorAgeingChunks<T>(rows: T[], insert: (chunk: T[]
     while (next < chunks.length) await insert(chunks[next++]!);
   }));
 }
+
+/**
+ * Removes Vendor Ageing lines 1,000 ids at a time. One delete of a whole
+ * 52k–157k line snapshot exceeds the database's 8-second request limit.
+ */
+export async function deleteVendorAgeingInBatches(
+  nextIds: (limit: number) => Promise<number[]>,
+  remove: (ids: number[]) => Promise<void>,
+  size = 1000,
+): Promise<number> {
+  let total = 0;
+  for (;;) {
+    const ids = await nextIds(size);
+    if (!ids.length) return total;
+    await remove(ids);
+    total += ids.length;
+    if (ids.length < size) return total;
+  }
+}

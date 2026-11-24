@@ -64,3 +64,19 @@ describe("Vendor Ageing save speed and in-progress display", () => {
     expect(vendorAgeingStepLabel("Posting Date", 1)).toBe("Posting Date (2/3)");
   });
 });
+
+describe("Vendor Ageing batched cleanup", () => {
+  it("removes a 52,373-line snapshot 1,000 ids per delete", async () => {
+    const { deleteVendorAgeingInBatches } = await import("./vendor-ageing-map");
+    let remaining = Array.from({ length: 52373 }, (_, i) => i + 1);
+    const deletes: number[] = [];
+    const removed = await deleteVendorAgeingInBatches(
+      async (limit) => remaining.slice(0, limit),
+      async (ids) => { deletes.push(ids.length); remaining = remaining.filter((id) => !ids.includes(id)); },
+    );
+    expect(removed).toBe(52373);
+    expect(remaining).toHaveLength(0);
+    expect(Math.max(...deletes)).toBe(1000);
+    expect(deletes).toHaveLength(53);
+  });
+});

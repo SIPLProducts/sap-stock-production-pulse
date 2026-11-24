@@ -37,3 +37,4 @@
 - Vendor Ageing sync calls R1, R2, R3 sequentially, tagging pc_text with the SAP request basis and sharing synced_at; replace older rows only after all three non-empty valid replies are saved, rollback the new rows on failure, and default screen/launchpad totals to Due Date to avoid counting three response sets together.
 - Unmapped SAP endpoints fail with "No storage is set up" instead of defaulting to a report table, because the retired sales/purchase/stock tables were removed.
 - ZFBL1N (zfbl1n_items) screens and launchpad read aggregates through zfbl1n_summary/zfbl1n_page RPCs (invoker, RLS applies) instead of downloading line items, so 30k+ rows load instantly; sync replaces the snapshot like Vendor Ageing.
+- Delete Vendor Ageing snapshots in 1,000-id batches (deleteVendorAgeingInBatches / scheduler purge), because single deletes of 52k+ lines exceed the 8-second database request limit.
