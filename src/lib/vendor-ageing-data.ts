@@ -7,7 +7,7 @@ export const VA_BUCKETS = ["0-30", "31-90", "91-120", "121-180", "181-365", "1-2
 export type VaRow = {
   vendor: string; vendorName: string; pan: string; msmeDesc: string; msmeNo: string; doc: string; amount: number; days: number; docType: string;
   docDate: string; postDate: string; dueDate: string; bukrs: string; prctr: string; prctrText: string; gl: string; glText: string;
-  segment: string; text: string; ref: string; po: string; keyDate: string; buckets: number[]; syncedAt: string;
+  segment: string; text: string; ref: string; po: string; keyDate: string; pcText: string; buckets: number[]; syncedAt: string;
 };
 type Rec = Record<string, unknown>;
 const t = (v: unknown) => (v == null ? "" : String(v)).trim();
@@ -18,7 +18,7 @@ export function toVaRow(r: Rec): VaRow {
     vendor: t(r["lifnr"]), vendorName: t(r["name1"]) || t(r["lifnr"]), pan: t(r["j_1ipanno"]), msmeDesc: t(r["mindk_desc"]), msmeNo: t(r["msme_no"]),
     doc: t(r["belnr"]), amount: -n(r["wrbtr"]), days: n(r["days"]), docType: t(r["blart"]), docDate: t(r["bldat"]), postDate: t(r["budat"]), dueDate: t(r["net_due_date"]),
     bukrs: t(r["bukrs"]), prctr: t(r["prctr"]), prctrText: t(r["prctr_text"]) || t(r["prctr"]), gl: t(r["hkont"]), glText: t(r["txt50"]) || t(r["hkont"]),
-    segment: t(r["segment_text"]) || t(r["segment"]), text: t(r["sgtxt"]), ref: t(r["t_vbeln"]), po: t(r["ebeln"]), keyDate: t(r["key_date"]),
+    segment: t(r["segment_text"]) || t(r["segment"]), text: t(r["sgtxt"]), ref: t(r["t_vbeln"]), po: t(r["ebeln"]), keyDate: t(r["key_date"]), pcText: t(r["pc_text"]),
     buckets: ["d10", "d20", "d30", "d40", "d50", "d60", "d70", "d80", "d90"].map((k) => -n(r[k])), syncedAt: t(r["synced_at"]),
   };
 }
@@ -58,7 +58,7 @@ export function vaGlDocSplit(rows: VaRow[], gls = 6, types = 4) {
 }
 export function vaLastSync(rows: VaRow[]) { let m = ""; for (const r of rows) if (r.syncedAt > m) m = r.syncedAt; return m || null; }
 
-const COLS = "id,lifnr,name1,j_1ipanno,mindk_desc,msme_no,belnr,wrbtr,days,blart,bldat,budat,net_due_date,bukrs,prctr,prctr_text,hkont,txt50,segment,segment_text,sgtxt,t_vbeln,ebeln,key_date,d10,d20,d30,d40,d50,d60,d70,d80,d90,synced_at";
+const COLS = "id,lifnr,name1,j_1ipanno,mindk_desc,msme_no,belnr,wrbtr,days,blart,bldat,budat,net_due_date,bukrs,prctr,prctr_text,hkont,txt50,segment,segment_text,sgtxt,t_vbeln,ebeln,key_date,pc_text,d10,d20,d30,d40,d50,d60,d70,d80,d90,synced_at";
 const PAGE = 1000;
 /** Fetches id ranges in parallel (6 at a time) instead of 50+ sequential pages. */
 export async function getVendorAgeing(): Promise<VaRow[]> {
@@ -88,7 +88,7 @@ export async function getVendorAgeing(): Promise<VaRow[]> {
   out.sort((x, y) => Number(x["id"]) - Number(y["id"]));
   return out.map(toVaRow);
 }
-export const vendorAgeingQuery = queryOptions({ queryKey: ["vendor-ageing", "v1"], queryFn: getVendorAgeing, staleTime: Infinity, refetchOnWindowFocus: false });
+export const vendorAgeingQuery = queryOptions({ queryKey: ["vendor-ageing", "v2-basis"], queryFn: getVendorAgeing, staleTime: Infinity, refetchOnWindowFocus: false });
 
 export type VaBasis = "all" | "due" | "post" | "grn";
 const VA_LIMITS = [30, 90, 120, 180, 365, 730, 1095, 1825];
@@ -107,4 +107,11 @@ export function rebucketByBasis(rows: VaRow[], basis: VaBasis, keyDate: string):
     out.push({ ...r, days, buckets });
   }
   return out;
+}
+
+/** Stored SAP basis, never recalculated dates. Untagged older rows remain visible only with All. */
+export function filterVendorAgeingBasis(rows: VaRow[], basis: VaBasis): VaRow[] {
+  if (basis === "all") return rows;
+  const label = { due: "Due Date", post: "Posting Date", grn: "GRN Date" }[basis];
+  return rows.filter((r) => r.pcText === label);
 }

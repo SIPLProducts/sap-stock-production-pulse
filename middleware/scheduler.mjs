@@ -199,6 +199,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
     }
     if (isVendorAgeingEndpoint(endpoint)) {
       const { received, rows, invalid, duplicates } = mapVendorAgeingPayload(payload, endpoint, va ? new Date(va.syncedAt) : new Date(), va?.label ?? null);
+      if (va && (!rows.length || invalid > 0)) throw new Error(`${va.label}: SAP returned empty or invalid data; previous data retained`);
       for (let i = 0; i < rows.length; i += BATCH) {
         const { error } = await db.from("vendor_ageing").insert(rows.slice(i, i + BATCH));
         if (error) { await db.from("vendor_ageing").delete().eq("synced_at", rows[0].synced_at); throw new Error(error.message); }
@@ -304,7 +305,7 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         username: systemRow?.username ?? undefined,
       });
 
-      const bodyText = withEndpointDates(
+      let bodyText = withEndpointDates(
         endpoint.name,
         endpoint.body_template,
         endpoint.posting_range,
@@ -387,10 +388,10 @@ export function createScheduler({ callSap, resolveSystem, logLine, newTraceId })
         duration_ms: Date.now() - startedMs,
         http_status: result.status,
         error_message: counts.received
-          ? `${counts.stored} stored; ${counts.replaced} replaced; ${counts.duplicates} repeated occurrences preserved; ${counts.invalid} invalid`
+          ? `${va?.label ? va.label + ": " : ""}${counts.stored} stored; ${counts.replaced} replaced; ${counts.duplicates} repeated occurrences preserved; ${counts.invalid} invalid`
           : `${counts.replaced} previous rows removed for this empty SAP snapshot`,
       });
-      if (counts.stored > 0) {
+      if (counts.stored > 0 && (!va || va.final)) {
         await db
           .from("sap_endpoints")
           .update({ last_synced_at: new Date().toISOString() })

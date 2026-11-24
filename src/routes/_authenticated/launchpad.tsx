@@ -1,4 +1,4 @@
-import { vendorAgeingQuery, vaTotals, vaLastSync } from "@/lib/vendor-ageing-data";
+import { vendorAgeingQuery, vaTotals, vaLastSync, filterVendorAgeingBasis } from "@/lib/vendor-ageing-data";
 import { zfSummaryQuery } from "@/lib/zfbl1n-data";
 import { lastSyncedLabel, lastSyncShortLabel } from "@/lib/report-sync-time";
 import type * as React from "react";
@@ -121,7 +121,7 @@ function Zfbl1nTile({ href }: { href: string }) {
 }
 function VendorAgeingTile({ href }: { href: string }) {
   const q = useQuery(vendorAgeingQuery);
-  const s = q.data ? vaTotals(q.data) : null;
+  const s = q.data ? vaTotals(filterVendorAgeingBasis(q.data, "due")) : null;
   const sync = q.data ? vaLastSync(q.data) : null;
   const cr = (v: number) => (v / 1e7).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return <TableStatusTile title="Vendor Ageing" value={q.isLoading ? "…" : q.isError ? "Couldn't load" : s && s.lines ? `₹ ${cr(s.total)} Cr` : "No data"} note={q.isError ? "Refresh the page to try again" : "Total Outstanding (₹ Cr)"} href={href} accent={3}>

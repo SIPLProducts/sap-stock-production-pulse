@@ -138,6 +138,7 @@ export async function storeVendorAgeingPayload(
   const base = { received, replaced: 0, skipped: 0, invalid, duplicates, syncScopeKey: "vendor_ageing", snapshotId: "", postingFrom: null, postingTo: null };
   const syncedAt = rows[0]?.["synced_at"] as string | undefined;
   try {
+    if (va.key && (!rows.length || invalid > 0)) throw new Error(`${va.label}: SAP returned empty or invalid data; previous data retained`);
     for (let i = 0; i < rows.length; i += BATCH) {
       const { error } = await db.from("vendor_ageing" as never).insert(rows.slice(i, i + BATCH) as never);
       if (error) throw error;
@@ -191,7 +192,7 @@ export async function storeZfbl1nPayload(
       if (error) throw error;
       removed = count ?? 0;
     }
-    await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${va.label ? va.label + ": " : ""}${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
+    await finish({ status: "success", records_stored: rows.length, records_inserted: rows.length, error_message: received ? `${rows.length} stored; ${removed} old lines replaced` : "SAP returned no rows — existing data left unchanged" });
     return { ...base, replaced: removed, stored: rows.length };
   } catch (err) {
     if (syncedAt) await db.from("zfbl1n_items" as never).delete().eq("synced_at", syncedAt);
@@ -257,6 +258,7 @@ export async function pullSapEndpoint(
     const syncedAt = new Date().toISOString();
     let last: PullResult | null = null;
     let stored = 0, received = 0, invalid = 0, replaced = 0;
+    try {
     for (const [key, label] of VA_BASES) {
       last = await pullSapEndpoint(endpointName, { ...options, va: { key, label, syncedAt, final: key === "R3" } });
       if (last.status !== "synced") {
@@ -266,7 +268,15 @@ export async function pullSapEndpoint(
       }
       stored += last.stored; received += last.received; invalid += last.invalid; replaced += last.replaced;
     }
-    return { ...(last as Extract<PullResult, { status: "synced" }>), stored, received, invalid, replaced };
+    if (!last || last.status !== "synced") return { status: "error", message: "Vendor Ageing sync did not complete" };
+    return { ...last, stored, received, invalid, replaced };
+    } catch (error) {
+      const db = await admin();
+      await db.from("vendor_ageing" as never).delete().eq("synced_at", syncedAt);
+      const message = error instanceof Error ? error.message : "Vendor Ageing sync failed";
+      await logFailure(endpointName, message);
+      return { status: "error", message };
+    }
   }
   if (!options.va && await runInProgress(endpointName)) {
     const reason = "A sync is already running — this scheduled attempt was skipped";
@@ -433,7 +443,7 @@ export async function pullSapEndpoint(
     .from("sap_endpoints")
     .update({
       // Only move the synced stamp when rows were actually written.
-      ...(counts.stored > 0 ? { last_synced_at: now } : {}),
+      ...(counts.stored > 0 && options.va?.final !== false ? { last_synced_at: now } : {}),
       last_run_at: now,
       last_run_status: "success",
     })

@@ -212,3 +212,7 @@
 - [x] Month Wise Stock dashboard from Month Wise Upload
 - [x] Rename the portal branding from HBL to RESL (page titles, login screen, launchpad, PDF footer)
 - [x] Use the uploaded RESL logo in the header, login screen and PDF headers.
+
+- [x] Implement Vendor Ageing R1/R2/R3 sync, persisted basis/filter/Excel, Due Date launchpad totals, and deployment SQL mirrors; verified database column, 39 tests, and clean preview build.
+- [ ] Verify Vendor Ageing against live SAP and the signed-in report: current test account has no report permission; live SAP sync not exercised.
+- [ ] Quality/Production: apply vendor-ageing-pc-text.sql and deploy updated frontend, sync-core.mjs and scheduler.mjs; remote deployment access unavailable.
